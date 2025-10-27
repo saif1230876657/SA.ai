@@ -376,7 +376,10 @@
 
 
   <script>
-    const geminiApiKey = "AIzaSyAnAUCajzM7PqrM6k5znxaOAKs3R1kHzWk";
+    // ================== START: CONFIGURATION ==================
+    // This is the ONLY API key used in the script.
+    const geminiApiKey = "AIzaSyArAURCzYl1uxSJxvF7r5Ad-W5kaaz4ANw";
+    // ================== END: CONFIGURATION ==================
 
     const chatWrapper = document.getElementById("chatWrapper"); const chatContainer = document.getElementById("chatContainer"); const userInput = document.getElementById("userInput"); const botNameElement = document.getElementById("botName"); const imageUploadInput = document.getElementById("imageUpload"); const toggleUploadBtn = document.getElementById("toggleUploadBtn"); const uploadOptionsContainer = document.getElementById("uploadOptionsContainer"); const voiceIndicator = document.getElementById('voiceIndicator'); const subjectsViewContainer = document.getElementById('subjectsViewContainer'); const subjectListContainer = document.getElementById('subjectListContainer'); const backToChatBtn = document.getElementById('backToChatBtn'); const cameraOverlay = document.getElementById('cameraOverlay'); const previewOverlay = document.getElementById('previewOverlay'); const cameraView = document.getElementById('cameraView'); const previewCanvas = document.getElementById('previewCanvas'); const captureBtn = document.getElementById('captureBtn'); const cancelCameraBtn = document.getElementById('cancelCameraBtn'); const usePhotoBtn = document.getElementById('usePhotoBtn'); const retakeBtn = document.getElementById('retakeBtn'); const loader = document.getElementById('loader'); const imagePreviewContainer = document.getElementById('imagePreviewContainer'); let cameraStream = null; const generalChatBtn = document.getElementById('generalChatBtn'); const shareBtn = document.getElementById('shareBtn'); const shareModal = document.getElementById('shareModal'); const closeShareModalBtn = document.getElementById('closeShareModal'); const copyLinkBtn = document.getElementById('copyLinkBtn'); const shareLinkInput = document.getElementById('shareLinkInput'); const downloadNotification = document.getElementById('downloadNotification'); const downloadAppBtn = document.getElementById('downloadAppBtn'); const closeNotificationBtn = document.getElementById('closeNotificationBtn'); const sendOrVoiceBtn = document.getElementById('sendOrVoiceBtn'); const languageBtn = document.getElementById('languageBtn'); const languageDropdown = document.getElementById('languageDropdown'); const suggestionsContainer = document.getElementById('suggestionsContainer'); const settingsBtn = document.getElementById('settingsBtn'); const settingsDropdown = document.getElementById('settingsDropdown'); const enterSubjectsBtn = document.getElementById('enterSubjectsBtn'); const deleteCurrentChatBtn = document.getElementById('deleteCurrentChatBtn'); const historyBtn = document.getElementById('historyBtn'); const historySidebar = document.getElementById('historySidebar'); const sidebarOverlay = document.getElementById('sidebar-overlay'); const closeHistoryBtn = document.getElementById('closeHistoryBtn'); const newChatBtn = document.getElementById('newChatBtn'); const historyList = document.getElementById('historyList'); const welcomeAnimation = document.getElementById('welcomeAnimationContainer');
     const botName = "Saif AI"; const localStorageKeyAllChats = "saifAiAllChatSessions_v3"; const localStorageKeyLastSession = "saifAiLastSession_v3"; const localStorageKeyLanguage = "saifAiLanguage_v1";
@@ -535,7 +538,26 @@
 
     function deleteMessage(index) { messages.splice(index, 1); refreshChat(); }
     function deleteCurrentChat() { settingsDropdown.style.display = 'none'; if (!currentChatId) { messages = []; addWelcomeMessage(); refreshChat(); return; } if (confirm(translations[currentLanguage].confirmDeleteCurrent)) { const sessionIndex = allChatSessions[currentSubject].findIndex(s => s.id === currentChatId); if (sessionIndex > -1) { allChatSessions[currentSubject].splice(sessionIndex, 1); } const nextSession = allChatSessions[currentSubject][0] || null; loadChat(currentSubject, nextSession ? nextSession.id : null); } }
-    async function fetchGeminiResponse(promptParts) { if (!geminiApiKey) throw new Error("API key is missing."); const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${geminiApiKey}`; const response = await fetch(url, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: promptParts }] }) }); if(!response.ok) throw new Error(`Network error: ${response.statusText}`); const data = await response.json(); return data.candidates?.[0]?.content?.parts?.[0]?.text || "No response received."; }
+    
+    // This function handles the API call using the specified model and key.
+    async function fetchGeminiResponse(promptParts) {
+        if (!geminiApiKey) throw new Error("API key is missing.");
+        
+        // Using the latest active model: gemini-2.0-flash-exp with the v1beta endpoint.
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${geminiApiKey}`;
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents: [{ parts: promptParts }] })
+        });
+        
+        if (!response.ok) throw new Error(`Network error: ${response.statusText}`);
+        
+        const data = await response.json();
+        return data.candidates?.[0]?.content?.parts?.[0]?.text || "No response received.";
+    }
+
     async function processQueryWithAI(promptParts) { const t = translations[currentLanguage]; updateInitialViewState(); const typingIndicatorHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`; const tempMsgId = `bot-msg-${Date.now()}`; const messageElem = document.createElement("div"); messageElem.className = `message bot`; messageElem.id = tempMsgId; messageElem.innerHTML = `<div class="message-header"><span>${getBotDisplayName()}</span></div><div class="message-content">${typingIndicatorHTML}</div>`; chatContainer.appendChild(messageElem); chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' }); try { const responseText = await fetchGeminiResponse(promptParts); const finalMessageElement = document.getElementById(tempMsgId); if (finalMessageElement) { const contentDiv = finalMessageElement.querySelector('.message-content'); typeWriterEffect(contentDiv, responseText); messages.push({ sender: 'bot', text: responseText, images: [] }); saveAllChatSessionsToLocalStorage(); } } catch (error) { const errorElement = document.getElementById(tempMsgId); if (errorElement) { errorElement.querySelector('.message-content').innerHTML = `${t.errorPrefix}: ${error.message}`; } messages.push({ sender: 'bot', text: `${t.errorPrefix}: ${error.message}`, images: [], isSystemMessage: true }); saveAllChatSessionsToLocalStorage(); } }
     
     async function sendMessage() {
