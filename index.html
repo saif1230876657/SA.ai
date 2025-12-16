@@ -1,115 +1,197 @@
 <!DOCTYPE html>
-<html dir="rtl" lang="ar">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Saif AI</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#000000" />
-  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&family=Aref+Ruqaa:wght@700&display=swap" rel="stylesheet">
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
       --bg-color: #000000;
-      --glass-bg: rgba(20, 20, 20, 0.75);
-      --glass-border: rgba(255, 255, 255, 0.1);
       --text-main: #ffffff;
-      --text-sec: #aaaaaa;
-      --accent: #ffffff;
+      --text-sec: #b0b0b0;
+      --code-bg: #1e1e1e;
+      --accent-color: #ffffff;
     }
     * { box-sizing: border-box; font-family: 'Tajawal', sans-serif; -webkit-tap-highlight-color: transparent; outline: none; }
     body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background-color: var(--bg-color); color: var(--text-main); }
-    
-    /* Space Background */
-    .space-background { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; z-index: 0; pointer-events: none; background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%); }
-    .moon { position: absolute; top: 5%; right: 10%; width: 80px; opacity: 0.8; filter: drop-shadow(0 0 20px rgba(255,255,255,0.2)); }
-    .star { position: absolute; background: white; border-radius: 50%; width: 2px; height: 2px; animation: twinkle 3s infinite ease-in-out; }
-    .star:nth-child(1) { top: 20%; left: 20%; animation-delay: 0s; }
-    .star:nth-child(2) { top: 40%; left: 80%; animation-delay: 1s; }
-    .star:nth-child(3) { top: 60%; left: 10%; animation-delay: 2s; }
-    .star:nth-child(4) { top: 10%; left: 50%; animation-delay: 1.5s; }
-    .star:nth-child(5) { top: 80%; left: 70%; animation-delay: 0.5s; }
-    @keyframes twinkle { 0%, 100% { opacity: 0.3; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } }
 
-    /* Layout */
-    .app-container { display: flex; flex-direction: column; height: 100%; position: relative; z-index: 1; }
-    
-    /* Header */
+    /* --- Space Background --- */
+    .space-background { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; z-index: 0; pointer-events: none; background: #000; }
+    .moon { position: absolute; top: 5%; right: 5%; width: 70px; opacity: 0.8; filter: drop-shadow(0 0 10px rgba(255,255,255,0.1)); }
+    .star { position: absolute; background: white; border-radius: 50%; width: 2px; height: 2px; box-shadow: 0 0 6px 2px rgba(255,255,255,0.8); animation: twinkle 3s infinite ease-in-out; }
+    .star:nth-child(1) { top: 15%; left: 25%; animation-delay: 0s; }
+    .star:nth-child(2) { top: 35%; left: 85%; animation-delay: 1.5s; }
+    .star:nth-child(3) { top: 65%; left: 15%; animation-delay: 2.5s; }
+    .star:nth-child(4) { top: 10%; left: 60%; animation-delay: 0.5s; }
+    .star:nth-child(5) { top: 80%; left: 75%; animation-delay: 1s; }
+    @keyframes twinkle { 0%, 100% { opacity: 0.2; transform: scale(0.5); } 50% { opacity: 1; transform: scale(1.5); } }
+
+    /* --- Header --- */
     .header {
         position: absolute; top: 0; left: 0; right: 0; height: 60px;
         display: flex; align-items: center; justify-content: space-between;
         padding: 0 20px; z-index: 100;
         background: transparent;
     }
-    .brand { font-family: 'Aref Ruqaa', serif; font-size: 1.5rem; color: white; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
-    .menu-btn { background: none; border: none; color: white; font-size: 1.4rem; cursor: pointer; }
+    .brand { font-size: 1.4rem; font-weight: 700; color: white; letter-spacing: 1px; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+    .menu-btn { background: none; border: none; color: white; font-size: 1.4rem; cursor: pointer; padding: 10px; opacity: 0.8; transition: 0.3s; }
+    .menu-btn:hover { opacity: 1; transform: scale(1.1); }
 
-    /* Chat Area */
-    .chat-view { flex: 1; overflow-y: auto; padding: 70px 15px 180px 15px; scroll-behavior: smooth; position: relative; }
+    /* --- Chat Area --- */
+    .app-container { display: flex; flex-direction: column; height: 100%; position: relative; z-index: 1; }
+    .chat-view { flex: 1; overflow-y: auto; padding: 70px 15px 160px 15px; scroll-behavior: smooth; position: relative; }
     
-    /* Empty State (Astronaut) */
     .empty-state {
         position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
-        text-align: center; width: 100%;
+        text-align: center; width: 100%; opacity: 0.9;
     }
-    .astronaut-img { width: 140px; animation: float 6s ease-in-out infinite; margin-bottom: 20px; }
-    .welcome-text { font-size: 1.1rem; color: rgba(255,255,255,0.8); }
+    .astronaut-img { width: 140px; animation: float 6s ease-in-out infinite; margin-bottom: 25px; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.8)); }
+    .welcome-text { font-size: 1.2rem; color: rgba(255,255,255,0.9); font-weight: 500; }
     @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
 
-    /* Messages */
-    .message { display: flex; flex-direction: column; margin-bottom: 20px; max-width: 85%; animation: fadeUp 0.3s ease; }
+    /* --- Messages --- */
+    .message { display: flex; flex-direction: column; margin-bottom: 25px; max-width: 90%; animation: fadeUp 0.3s ease; }
     .message.user { align-self: flex-end; align-items: flex-end; }
-    .message.bot { align-self: flex-start; align-items: flex-start; }
-    .msg-bubble { padding: 12px 16px; border-radius: 20px; line-height: 1.6; font-size: 0.95rem; position: relative; word-wrap: break-word; background: rgba(30, 30, 30, 0.8); backdrop-filter: blur(5px); border: 1px solid var(--glass-border); color: white; }
-    .message.user .msg-bubble { background: rgba(255, 255, 255, 0.1); border-bottom-left-radius: 4px; }
-    html[dir="ltr"] .message.user .msg-bubble { border-bottom-left-radius: 20px; border-bottom-right-radius: 4px; }
-    .message.bot .msg-bubble { background: rgba(0, 0, 0, 0.6); }
-    .msg-header { font-size: 0.7rem; color: #888; margin-bottom: 4px; margin-right: 8px; }
+    .message.bot { align-self: flex-start; align-items: flex-start; width: 95%; max-width: 95%; } 
+    
+    .msg-content-wrapper { 
+        padding: 10px 16px; border-radius: 16px; line-height: 1.6; font-size: 1rem; 
+        position: relative; word-wrap: break-word; color: white;
+    }
+    
+    .message.user .msg-content-wrapper { 
+        background: rgba(255, 255, 255, 0.08); 
+        border-radius: 16px 16px 2px 16px;
+    }
+    html[dir="rtl"] .message.user .msg-content-wrapper { border-radius: 16px 16px 16px 2px; }
 
-    /* Input Area - The "Capsule" */
+    .message.bot .msg-content-wrapper { 
+        padding: 0; width: 100%; background: transparent; 
+    }
+    
+    .sent-image-grid { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 5px; }
+    .sent-image { max-width: 200px; max-height: 200px; border-radius: 8px; object-fit: cover; cursor: pointer; border: 1px solid #333; }
+
+    /* CODE BLOCKS (VS Code Dark Style) */
+    .code-container {
+        background: #1e1e1e;
+        border: 1px solid #333;
+        border-radius: 8px;
+        margin: 12px 0;
+        overflow: hidden;
+        width: 100%;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+    }
+    .code-header {
+        background: #252526;
+        padding: 8px 12px;
+        font-size: 0.8rem;
+        color: #cccccc;
+        display: flex; justify-content: space-between; align-items: center;
+        border-bottom: 1px solid #333;
+        font-family: 'Fira Code', monospace;
+    }
+    .code-actions { display: flex; gap: 12px; }
+    .code-btn {
+        background: transparent; border: none; color: #aaaaaa;
+        cursor: pointer; font-size: 0.85rem; transition: color 0.2s;
+        display: flex; align-items: center; gap: 6px;
+    }
+    .code-btn:hover { color: white; }
+
+    .code-scroll-area {
+        max-height: 250px; /* Collapsed */
+        overflow: auto;
+        padding: 12px;
+        background: #1e1e1e;
+    }
+    
+    .code-content {
+        color: #d4d4d4;
+        font-family: 'Fira Code', monospace;
+        font-size: 0.95rem;
+        white-space: pre;
+        tab-size: 4;
+        line-height: 1.5;
+    }
+
+    /* Syntax Highlighting */
+    .token.keyword { color: #c586c0; font-weight: bold; }
+    .token.string { color: #ce9178; }
+    .token.comment { color: #6a9955; font-style: italic; }
+    .token.number { color: #b5cea8; }
+    .token.function { color: #dcdcaa; }
+    .token.operator { color: #d4d4d4; }
+    
+    /* --- Input Area (Transparent & Dark) --- */
     .input-area {
-        position: absolute; bottom: 0; left: 0; right: 0;
-        padding: 15px; background: linear-gradient(to top, rgba(0,0,0,1) 20%, transparent);
-        z-index: 50;
+        position: absolute; bottom: 20px; left: 0; right: 0;
+        padding: 0 15px; z-index: 50;
+        display: flex; justify-content: center;
     }
-    .input-wrapper {
-        background: var(--glass-bg);
-        backdrop-filter: blur(15px);
-        border: 1px solid var(--glass-border);
+    
+    .input-container {
+        width: 100%; max-width: 800px;
+        background: rgba(0, 0, 0, 0.6); /* Darker transparent */
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 24px;
-        padding: 10px;
-        position: relative;
+        padding: 10px 15px;
         display: flex; flex-direction: column;
-        transition: border-color 0.3s;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        transition: background 0.3s;
     }
-    .input-wrapper:focus-within { border-color: rgba(255,255,255,0.3); }
+    /* Removed separator line inside input */
+    .input-controls {
+        display: flex; justify-content: space-between; align-items: center;
+        padding-top: 5px;
+    }
 
     textarea {
         width: 100%; background: transparent; border: none;
-        color: white; padding: 10px; resize: none;
-        max-height: 120px; font-size: 1rem;
-        margin-bottom: 40px; /* Space for buttons */
+        color: white; padding: 8px 5px; resize: none;
+        max-height: 150px; font-size: 1rem; line-height: 1.5;
+        margin-bottom: 0;
     }
-    textarea::placeholder { color: rgba(255,255,255,0.4); }
+    textarea::placeholder { color: rgba(255,255,255,0.3); }
 
-    /* Buttons inside Input */
-    .input-actions {
-        position: absolute; bottom: 8px; left: 10px; right: 10px;
-        display: flex; justify-content: space-between; align-items: center;
-    }
-    .left-actions, .right-actions { display: flex; align-items: center; gap: 10px; }
+    .left-controls, .right-controls { display: flex; align-items: center; gap: 10px; }
 
-    .icon-btn {
-        width: 38px; height: 38px; border-radius: 50%;
-        border: none; background: rgba(255,255,255,0.05);
-        color: rgba(255,255,255,0.7);
-        cursor: pointer; display: flex; justify-content: center; align-items: center;
-        transition: 0.2s; font-size: 1.1rem;
+    .tool-btn {
+        background: transparent; border: none;
+        color: rgba(255,255,255,0.5);
+        cursor: pointer; font-size: 1.2rem;
+        transition: 0.2s; padding: 5px;
+        display: flex; align-items: center; justify-content: center;
     }
-    .icon-btn:hover { background: rgba(255,255,255,0.15); color: white; }
-    .icon-btn.active-model { color: #ffeb3b; background: rgba(255, 235, 59, 0.1); border: 1px solid rgba(255, 235, 59, 0.3); }
+    .tool-btn:hover { color: white; }
     
+    /* Model Toggle Button Styling */
+    .model-switch-btn {
+        background: rgba(255,255,255,0.05);
+        border-radius: 8px; padding: 6px 12px;
+        font-size: 0.85rem; color: #888;
+        display: flex; gap: 8px; align-items: center; cursor: pointer; border: none;
+        transition: 0.3s;
+    }
+    .model-switch-btn.thinker { 
+        background: rgba(142, 68, 173, 0.2); 
+        color: #d2b4de; 
+        border: 1px solid rgba(142, 68, 173, 0.4);
+    }
+    .model-switch-btn.fast { 
+        background: rgba(241, 196, 15, 0.1); 
+        color: #f7dc6f; 
+    }
+
+    .voice-btn.recording { color: #ff4444; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.1); } 100% { opacity: 1; transform: scale(1); } }
+
     .send-btn {
         width: 40px; height: 40px; border-radius: 50%;
         background: white; color: black; border: none;
@@ -119,44 +201,96 @@
     .send-btn:hover { transform: scale(1.05); }
 
     /* Image Preview */
-    .img-preview { display: none; padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); }
-    .preview-thumb { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; border: 1px solid rgba(255,255,255,0.2); }
-    .sent-image { max-width: 100%; border-radius: 12px; margin-top: 5px; border: 1px solid rgba(255,255,255,0.2); }
+    .img-preview-container { display: none; padding: 10px 0; gap: 8px; flex-wrap: wrap; margin-bottom: 5px; }
+    .preview-item { position: relative; width: 60px; height: 60px; }
+    .preview-thumb { width: 100%; height: 100%; border-radius: 8px; object-fit: cover; border: 1px solid #444; }
+    .remove-img-btn { position: absolute; top: -6px; right: -6px; background: #d32f2f; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; cursor: pointer; display: flex; justify-content: center; align-items: center; }
 
     /* Sidebar */
     .sidebar {
-        position: fixed; top: 0; right: -280px; width: 280px; height: 100%;
-        background: #111; border-left: 1px solid #333; z-index: 1000;
-        transition: right 0.3s; padding: 20px; display: flex; flex-direction: column;
+        position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
+        background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(20px);
+        border-right: 1px solid rgba(255,255,255,0.05); z-index: 1000;
+        transition: left 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        padding: 20px; display: flex; flex-direction: column;
+        box-shadow: 10px 0 40px rgba(0,0,0,0.9);
     }
-    .sidebar.open { right: 0; }
-    html[dir="ltr"] .sidebar { right: auto; left: -280px; border-left: none; border-right: 1px solid #333; transition: left 0.3s; }
-    html[dir="ltr"] .sidebar.open { left: 0; }
+    html[dir="rtl"] .sidebar { left: auto; right: -280px; border-right: none; border-left: 1px solid rgba(255,255,255,0.05); transition: right 0.3s; }
+    .sidebar.open { left: 0; }
+    html[dir="rtl"] .sidebar.open { right: 0; }
     
-    .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #333; }
+    .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; }
+    .sidebar-title { font-weight: 700; font-size: 1.2rem; color: white; }
+    
     .menu-item {
-        background: transparent; border: none; color: #ddd;
-        width: 100%; padding: 12px; text-align: right;
-        border-radius: 8px; cursor: pointer; margin-bottom: 5px;
-        display: flex; align-items: center; gap: 10px;
+        background: transparent; border: none; color: #ccc;
+        width: 100%; padding: 14px; text-align: left;
+        border-radius: 10px; cursor: pointer; margin-bottom: 5px;
+        display: flex; align-items: center; gap: 12px; font-size: 0.95rem;
+        transition: 0.2s;
     }
-    html[dir="ltr"] .menu-item { text-align: left; }
-    .menu-item:hover { background: #222; }
-    .menu-item i { width: 20px; text-align: center; }
-
-    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 900; display: none; }
+    html[dir="rtl"] .menu-item { text-align: right; }
+    .menu-item:hover { background: rgba(255,255,255,0.08); color: white; }
+    
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 900; display: none; backdrop-filter: blur(2px); }
     .overlay.show { display: block; }
 
+    /* Fullscreen Code Overlay */
+    .code-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: #1e1e1e; z-index: 2000;
+        display: none; flex-direction: column;
+        animation: slideUp 0.3s ease-out;
+    }
+    .code-overlay-header {
+        height: 55px; background: #252526; border-bottom: 1px solid #333;
+        display: flex; justify-content: space-between; align-items: center; padding: 0 20px;
+    }
+    .code-overlay-title { color: #fff; font-family: 'Fira Code', monospace; font-size: 1rem; }
+    .code-overlay-actions { display: flex; gap: 15px; }
+    .code-overlay-btn {
+        background: transparent; border: none; color: #ccc; cursor: pointer;
+        display: flex; align-items: center; gap: 6px; font-size: 0.95rem;
+    }
+    .code-overlay-btn:hover { color: white; }
+    .code-overlay-btn.run { color: #4caf50; } /* Green */
+    
+    .code-overlay-content {
+        flex: 1; overflow: auto; padding: 20px;
+        color: #d4d4d4; font-family: 'Fira Code', monospace; font-size: 1rem;
+        white-space: pre; background: #1e1e1e;
+    }
+
+    /* Run Output Window */
+    .run-output-window {
+        position: fixed; top: 55px; left: 0; width: 100%; height: calc(100% - 55px);
+        background: white; z-index: 2001; display: none;
+    }
+    .run-close-btn {
+        position: absolute; top: 10px; right: 20px;
+        background: #d32f2f; color: white; border: none; border-radius: 5px;
+        padding: 8px 15px; cursor: pointer; z-index: 2002; font-weight: bold;
+    }
+
+    /* Fullscreen Image */
+    .fs-img-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 2500; display: none; justify-content: center; align-items: center; }
+    .fs-img-overlay img { max-width: 95%; max-height: 95%; object-fit: contain; }
+    .fs-close-btn { position: absolute; top: 20px; right: 30px; color: white; font-size: 2.5rem; cursor: pointer; }
+
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* Toast */
     .toast {
-        position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
-        background: rgba(30,30,30,0.9); color: white; padding: 8px 16px;
-        border-radius: 20px; border: 1px solid #444; font-size: 0.85rem;
-        opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 2000;
+        position: fixed; top: 30px; left: 50%; transform: translateX(-50%);
+        background: #111; color: white; padding: 12px 24px;
+        border-radius: 30px; border: 1px solid #333; font-size: 0.95rem;
+        opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 3000;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.6);
     }
     .toast.show { opacity: 1; }
+    
+    .typing-text { font-size: 0.95rem; color: #888; font-style: italic; margin-left: 5px; animation: blinkText 1.5s infinite; }
+    @keyframes blinkText { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
   </style>
 </head>
 <body>
@@ -170,31 +304,33 @@
     <header class="header">
         <button class="menu-btn" id="menuBtn"><i class="fas fa-bars"></i></button>
         <span class="brand">Saif AI</span>
-        <div style="width: 24px;"></div> <!-- Spacer -->
+        <div style="width: 24px;"></div>
     </header>
 
     <div class="chat-view" id="chatContainer">
         <div class="empty-state" id="emptyState">
             <img src="https://i.postimg.cc/15L2K4wT/1000137153.png" alt="Astronaut" class="astronaut-img">
-            <div class="welcome-text" id="welcomeText">مرحباً، كيف يمكنني مساعدتك؟</div>
+            <div class="welcome-text" id="welcomeText">Hello, I'm ready.</div>
         </div>
     </div>
 
+    <!-- Transparent Input -->
     <div class="input-area">
-        <div class="input-wrapper">
-            <div class="img-preview" id="imgPreview"></div>
-            <textarea id="userInput" rows="1" dir="auto" placeholder="اكتب رسالتك..."></textarea>
+        <div class="input-container">
+            <div class="img-preview-container" id="imgPreviewContainer"></div>
             
-            <div class="input-actions">
-                <div class="right-actions">
-                    <button class="icon-btn" id="modelToggle" title="تبديل النموذج">
-                        <i class="fas fa-bolt"></i>
+            <textarea id="userInput" rows="1" dir="auto" placeholder="Type your message..."></textarea>
+            
+            <div class="input-controls">
+                <div class="left-controls">
+                    <button class="model-switch-btn fast" id="modelToggle" title="Toggle Model">
+                        <i class="fas fa-bolt"></i> <span style="font-size: 0.75rem; font-weight: 600;" id="modelNameDisplay">Fast</span>
                     </button>
+                    <input type="file" id="fileInput" accept="image/*" multiple hidden>
+                    <button class="tool-btn" id="uploadBtn"><i class="fas fa-paperclip"></i></button>
+                    <button class="tool-btn voice-btn" id="voiceBtn"><i class="fas fa-microphone"></i></button>
                 </div>
-                
-                <div class="left-actions">
-                    <input type="file" id="fileInput" accept="image/*" hidden>
-                    <button class="icon-btn" id="uploadBtn"><i class="fas fa-paperclip"></i></button>
+                <div class="right-controls">
                     <button class="send-btn" id="sendBtn"><i class="fas fa-paper-plane"></i></button>
                 </div>
             </div>
@@ -206,17 +342,44 @@
 <div class="overlay" id="overlay"></div>
 <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <h3 id="menuTitle">القائمة</h3>
+        <h3 class="sidebar-title" id="menuTitle">Menu</h3>
         <button class="menu-btn" id="closeSidebar"><i class="fas fa-times"></i></button>
     </div>
-    <button class="menu-item" id="newChatBtn"><i class="fas fa-plus"></i> <span id="t_newChat">محادثة جديدة</span></button>
-    <button class="menu-item" id="langBtn"><i class="fas fa-globe"></i> <span id="t_lang">اللغة: العربية</span></button>
-    <button class="menu-item" id="shareBtn"><i class="fas fa-share-alt"></i> <span id="t_share">مشاركة</span></button>
-    <button class="menu-item" id="clearChatBtn" style="color: #ff5c5c;"><i class="fas fa-trash"></i> <span id="t_delete">حذف المحادثة</span></button>
-    <div style="margin-top: 20px; border-top: 1px solid #333; padding-top: 10px;">
-        <span style="font-size: 0.8rem; color: #666;" id="t_history">السجل</span>
-        <div id="historyList" style="margin-top: 10px;"></div>
+    <div style="flex: 1; overflow-y: auto;">
+        <button class="menu-item" id="newChatBtn"><i class="fas fa-plus"></i> <span id="t_newChat">New Chat</span></button>
+        <button class="menu-item" id="langBtn"><i class="fas fa-globe"></i> <span id="t_lang">Language: English</span></button>
+        <button class="menu-item" id="shareBtn"><i class="fas fa-share-alt"></i> <span id="t_share">Share App</span></button>
+        <div style="margin-top: 30px; padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.05);">
+            <span style="font-size: 0.75rem; color: #666; padding: 0 10px; font-weight: 700; letter-spacing: 1px;" id="t_history">HISTORY</span>
+            <div id="historyList" style="margin-top: 10px;"></div>
+        </div>
     </div>
+    <button class="menu-item" id="clearChatBtn" style="color: #d32f2f; margin-top: auto;"><i class="fas fa-trash"></i> <span id="t_delete">Delete Chat</span></button>
+</div>
+
+<!-- Fullscreen Code Overlay -->
+<div class="code-overlay" id="codeOverlay">
+    <div class="code-overlay-header">
+        <span class="code-overlay-title" id="codeOverlayTitle">Code Editor</span>
+        <div class="code-overlay-actions">
+            <button class="code-overlay-btn run" id="runCodeBtn"><i class="fas fa-play"></i> Run</button>
+            <button class="code-overlay-btn" id="copyOverlayBtn"><i class="fas fa-copy"></i> Copy</button>
+            <button class="code-overlay-btn" id="closeOverlayBtn"><i class="fas fa-times"></i> Close</button>
+        </div>
+    </div>
+    <div class="code-overlay-content" id="codeOverlayContent"></div>
+</div>
+
+<!-- Run Output Window -->
+<div class="run-output-window" id="runOutputWindow">
+    <button class="run-close-btn" onclick="closeRunWindow()">Close Output</button>
+    <iframe id="runFrame" style="width:100%; height:100%; border:none;"></iframe>
+</div>
+
+<!-- Fullscreen Image -->
+<div class="fs-img-overlay" id="fsImgOverlay">
+    <span class="fs-close-btn" id="closeFsImg">&times;</span>
+    <img id="fsImage" src="">
 </div>
 
 <div class="toast" id="toast"></div>
@@ -224,181 +387,326 @@
 <script>
     // --- State & Config ---
     const state = {
-        lang: localStorage.getItem('saif_lang') || 'ar',
-        isThinking: false, // Default is Fast mode (false)
-        chats: JSON.parse(localStorage.getItem('saif_chats_vold') || '[]'),
+        lang: localStorage.getItem('saif_lang_v7') || 'en', 
+        isThinking: false, // False = Fast (OpenAI), True = Thinker (Deep Analysis)
+        chats: JSON.parse(localStorage.getItem('saif_chats_v11') || '[]'),
         currentChatId: null,
-        typing: false
+        typing: false,
+        attachedImages: [],
+        isRecording: false,
+        recognition: null
     };
 
     const translations = {
-        ar: {
-            welcome: "مرحباً، كيف يمكنني مساعدتك؟", placeholder: "اكتب رسالتك...",
-            newChat: "محادثة جديدة", langName: "اللغة: العربية", share: "مشاركة التطبيق",
-            delete: "حذف المحادثة", history: "السجل", you: "أنت",
-            modeFast: "الوضع السريع مفعل", modeThink: "وضع التفكير العميق مفعل",
-            shareMsg: "جرب مساعد سيف الذكي: https://apk.e-droid.net/apk/app3760290-c4w5f2.apk"
-        },
         en: {
-            welcome: "Hello, how can I help you?", placeholder: "Type a message...",
+            welcome: "Hello, I'm ready.", placeholder: "Type your message...",
             newChat: "New Chat", langName: "Language: English", share: "Share App",
-            delete: "Delete Chat", history: "History", you: "You",
-            modeFast: "Fast Mode Active", modeThink: "Deep Thinking Mode Active",
-            shareMsg: "Check out Saif AI: https://apk.e-droid.net/apk/app3760290-c4w5f2.apk"
+            delete: "Delete Chat", history: "HISTORY",
+            fast: "Fast", think: "Thinker", typing: "Typing...",
+            shareMsg: "Check out Saif AI: https://apk.e-droid.net/apk/app3760290-c4w5f2.apk",
+            copy: "Copy", expand: "Expand", run: "Run", close: "Close"
         },
-        fr: {
-            welcome: "Bonjour, comment puis-je vous aider ?", placeholder: "Écrivez un message...",
-            newChat: "Nouvelle discussion", langName: "Langue: Français", share: "Partager",
-            delete: "Supprimer", history: "Historique", you: "Vous",
-            modeFast: "Mode Rapide", modeThink: "Mode Pensée", shareMsg: "Découvrez Saif AI"
-        },
-        es: {
-            welcome: "Hola, ¿cómo puedo ayudarte?", placeholder: "Escribe un mensaje...",
-            newChat: "Nuevo chat", langName: "Idioma: Español", share: "Compartir",
-            delete: "Eliminar", history: "Historial", you: "Tú",
-            modeFast: "Modo Rápido", modeThink: "Modo Pensamiento", shareMsg: "Prueba Saif AI"
-        },
-        zh: {
-            welcome: "你好，我能帮你什么？", placeholder: "输入消息...",
-            newChat: "新聊天", langName: "语言: 中文", share: "分享",
-            delete: "删除", history: "历史", you: "你",
-            modeFast: "快速模式", modeThink: "深度思考模式", shareMsg: "查看 Saif AI"
+        ar: {
+            welcome: "مرحباً، أنا مستعد.", placeholder: "اكتب رسالتك...",
+            newChat: "محادثة جديدة", langName: "اللغة: العربية", share: "مشاركة التطبيق",
+            delete: "حذف المحادثة", history: "السجل",
+            fast: "سريع", think: "مفكر", typing: "يكتب...",
+            shareMsg: "جرب مساعد سيف الذكي: https://apk.e-droid.net/apk/app3760290-c4w5f2.apk",
+            copy: "نسخ", expand: "توسيع", run: "تشغيل", close: "إغلاق"
         }
     };
 
-    // --- Elements ---
     const $ = id => document.getElementById(id);
     const els = {
         input: $('userInput'), container: $('chatContainer'), empty: $('emptyState'),
-        send: $('sendBtn'), upload: $('uploadBtn'), file: $('fileInput'),
-        preview: $('imgPreview'), modelBtn: $('modelToggle'),
-        sidebar: $('sidebar'), overlay: $('overlay')
+        send: $('sendBtn'), upload: $('uploadBtn'), file: $('fileInput'), voice: $('voiceBtn'),
+        previewCont: $('imgPreviewContainer'), modelBtn: $('modelToggle'), modelTxt: $('modelNameDisplay'),
+        sidebar: $('sidebar'), overlay: $('overlay'),
+        codeOverlay: $('codeOverlay'), codeContent: $('codeOverlayContent'),
+        runWindow: $('runOutputWindow'), runFrame: $('runFrame'), fsImg: $('fsImgOverlay'), fsImage: $('fsImage')
     };
-    let attachedImg = null;
 
     // --- Init ---
     function init() {
         applyLang(state.lang);
         loadChat(state.chats.length ? state.chats[0].id : null);
-        
-        // Event Listeners
+        initSpeechRecognition();
+
         $('menuBtn').onclick = () => toggleSidebar(true);
         $('closeSidebar').onclick = els.overlay.onclick = () => toggleSidebar(false);
-        els.modelBtn.onclick = toggleModel;
         els.send.onclick = sendMessage;
         els.upload.onclick = () => els.file.click();
-        els.file.onchange = handleFile;
-        els.input.addEventListener('keydown', e => {
-            if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-        });
+        els.file.onchange = handleFiles;
+        els.voice.onclick = toggleVoice;
+        $('closeFsImg').onclick = () => els.fsImg.style.display = 'none';
+        els.modelBtn.onclick = toggleModel;
+
         els.input.addEventListener('input', function() {
             this.style.height = 'auto';
             this.style.height = Math.min(this.scrollHeight, 120) + 'px';
         });
+
+        els.input.addEventListener('keydown', e => {
+            if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+        });
+
         $('newChatBtn').onclick = () => { loadChat(null); toggleSidebar(false); };
         $('clearChatBtn').onclick = deleteChat;
         $('langBtn').onclick = cycleLang;
         $('shareBtn').onclick = () => {
             navigator.clipboard.writeText(translations[state.lang].shareMsg);
-            showToast("تم نسخ الرابط" + (state.lang === 'ar' ? "" : " (Link Copied)"));
+            showToast(state.lang === 'ar' ? "تم النسخ" : "Link Copied");
         };
+
+        // Overlay Listeners
+        $('closeOverlayBtn').onclick = () => els.codeOverlay.style.display = 'none';
+        $('copyOverlayBtn').onclick = () => {
+            navigator.clipboard.writeText(els.codeContent.innerText);
+            showToast(translations[state.lang].copy + " Done");
+        };
+        $('runCodeBtn').onclick = runCodeFromOverlay;
     }
 
-    // --- Core Logic ---
+    // --- Logic ---
     function toggleModel() {
         state.isThinking = !state.isThinking;
         const icon = els.modelBtn.querySelector('i');
+        const txt = state.lang === 'ar' ? (state.isThinking ? "مفكر" : "سريع") : (state.isThinking ? "Thinker" : "Fast");
+        
+        // Remove old classes
+        els.modelBtn.classList.remove('fast', 'thinker');
+        
         if (state.isThinking) {
             icon.className = "fas fa-brain";
-            els.modelBtn.classList.add('active-model');
-            showToast(translations[state.lang].modeThink);
+            els.modelBtn.classList.add("thinker");
         } else {
             icon.className = "fas fa-bolt";
-            els.modelBtn.classList.remove('active-model');
-            showToast(translations[state.lang].modeFast);
+            els.modelBtn.classList.add("fast");
         }
+        els.modelTxt.textContent = txt;
+    }
+
+    // Speech Recognition
+    function initSpeechRecognition() {
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            state.recognition = new SpeechRecognition();
+            state.recognition.continuous = false;
+            state.recognition.interimResults = false;
+            state.recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                els.input.value += (els.input.value ? ' ' : '') + transcript;
+                stopVoice();
+            };
+            state.recognition.onerror = () => stopVoice();
+            state.recognition.onend = () => stopVoice();
+        } else {
+            els.voice.style.display = 'none';
+        }
+    }
+
+    function toggleVoice() {
+        if (!state.recognition) return;
+        if (state.isRecording) {
+            stopVoice();
+        } else {
+            state.isRecording = true;
+            state.recognition.lang = state.lang === 'ar' ? 'ar-SA' : 'en-US';
+            state.recognition.start();
+            els.voice.classList.add('recording');
+        }
+    }
+
+    function stopVoice() {
+        state.isRecording = false;
+        if (state.recognition) state.recognition.stop();
+        els.voice.classList.remove('recording');
     }
 
     async function sendMessage() {
         const text = els.input.value.trim();
-        if ((!text && !attachedImg) || state.typing) return;
+        if ((!text && state.attachedImages.length === 0) || state.typing) return;
         
         state.typing = true;
         els.empty.style.display = 'none';
         
-        // Render User Msg
-        const userMsg = { role: 'user', content: text, image: attachedImg };
+        const currentImages = [...state.attachedImages];
+        const userMsg = { role: 'user', content: text, images: currentImages };
         appendMessage(userMsg);
         saveMsg(userMsg);
 
-        // Reset Input
         els.input.value = ''; els.input.style.height = 'auto';
-        attachedImg = null; els.preview.style.display = 'none'; els.preview.innerHTML = '';
+        state.attachedImages = []; 
+        renderImagePreview();
 
-        // Prepare Bot Msg
         const botDiv = document.createElement('div');
         botDiv.className = 'message bot';
-        botDiv.innerHTML = `<div class="msg-header">Saif AI</div><div class="msg-bubble"><i class="fas fa-circle-notch fa-spin"></i></div>`;
+        botDiv.id = 'tempBotMsg';
+        botDiv.innerHTML = `<span class="typing-text">${translations[state.lang].typing}</span>`;
         els.container.appendChild(botDiv);
         scrollToBottom();
 
-        // Build Payload
-        const systemText = state.isThinking 
-            ? "You are Saif AI. Think step-by-step. Provide detailed, deep, and comprehensive analysis." 
-            : "You are Saif AI. Be concise, direct, and fast. Give short and helpful answers.";
-        
+        // System Prompt
+        let systemPrompt = `You are Saif AI, developed by a team of 3 developers, led by Saif Hany (the idea owner). 
+        You are professional, smart, and helpful. 
+        If the user sends an image, look at the 'image_url' provided in the content and analyze it thoroughly (extract text, describe content, etc).
+        If asked "Who created you?", answer: "I was developed by a team of 3, led by Saif Hany."
+        Provide clean code in markdown blocks. Respond in ${state.lang === 'ar' ? 'Arabic' : 'English'}.
+        ${state.isThinking ? "Think deeply, step-by-step, and provide comprehensive analysis." : "Be concise and direct."}`;
+
         const history = getHistoryContext();
-        const payload = [
-            { role: "system", content: systemText + ` Answer in ${state.lang === 'ar' ? 'Arabic' : 'the user language'}.` },
-            ...history,
-            { role: "user", content: text + (attachedImg ? " [Image Attached]" : "") }
+        
+        // Prepare Payload with Vision support
+        // We structure the last user message as an array if images exist
+        let lastUserContent = [];
+        if (text) lastUserContent.push({ type: "text", text: text });
+        
+        if (currentImages.length > 0) {
+            currentImages.forEach(img => {
+                lastUserContent.push({ type: "image_url", image_url: { url: img } });
+            });
+        }
+        
+        // Fallback for text-only history to simple string, current to array
+        // Pollinations/OpenAI accepts mixed history.
+        
+        let messagesPayload = [
+            { role: "system", content: systemPrompt },
+            ...history
         ];
+
+        // Add the current message
+        if (currentImages.length > 0) {
+             messagesPayload.push({ role: "user", content: lastUserContent });
+        } else {
+             messagesPayload.push({ role: "user", content: text });
+        }
+
+        // Select Model based on mode
+        // Fast = openai (standard)
+        // Thinker = searchgpt (or gpt-4o explicitly if supported, let's use 'openai' with complex prompt or 'searchgpt' for depth)
+        // Note: For Vision to work best on Pollinations, we usually need the default model (openai/gpt-4o).
+        
+        let modelToUse = state.isThinking ? 'searchgpt' : 'openai'; 
+        // Force openai if images are present to ensure vision capability
+        if (currentImages.length > 0) modelToUse = 'openai'; 
 
         try {
             const res = await fetch('https://text.pollinations.ai/', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ messages: payload, model: 'openai', seed: Math.floor(Math.random()*1000) })
+                body: JSON.stringify({ 
+                    messages: messagesPayload, 
+                    model: modelToUse, 
+                    seed: Math.floor(Math.random()*1000),
+                    jsonMode: false 
+                })
             });
+            
+            if (!res.ok) throw new Error("API Error");
             const data = await res.text();
             
-            // Typewriter
-            const bubble = botDiv.querySelector('.msg-bubble');
-            bubble.innerHTML = '';
-            let i = 0;
-            const speed = state.isThinking ? 25 : 8; // Slower for thinking feeling
+            const tempMsg = $('tempBotMsg');
+            if(tempMsg) tempMsg.remove();
             
-            function type() {
-                if(i < data.length) {
-                    bubble.textContent += data.charAt(i);
-                    i++;
-                    scrollToBottom();
-                    setTimeout(type, speed);
-                } else {
-                    state.typing = false;
-                    saveMsg({ role: 'assistant', content: data });
-                }
-            }
-            type();
+            const botMsg = { role: 'assistant', content: data };
+            appendMessage(botMsg);
+            saveMsg(botMsg);
+            state.typing = false;
 
         } catch (e) {
-            botDiv.querySelector('.msg-bubble').textContent = "Error: Network issue.";
+            const tempMsg = $('tempBotMsg');
+            if(tempMsg) tempMsg.innerHTML = `<span style="color:#d32f2f">Connection Error.</span>`;
             state.typing = false;
         }
     }
 
     // --- Helpers ---
+    function parseMarkdown(text) {
+        let formatted = text.replace(/```(\w+)?\n([\s\S]*?)```/g, function(match, lang, code) {
+            lang = lang || 'Code';
+            let highlighted = escapeHtml(code)
+                .replace(/\b(function|return|var|let|const|if|else|for|while|class|import|def|print|echo)\b/g, '<span class="token keyword">$1</span>')
+                .replace(/(['"`].*?['"`])/g, '<span class="token string">$1</span>')
+                .replace(/(\/\/.*$|#.*$)/gm, '<span class="token comment">$1</span>')
+                .replace(/\b(\d+)\b/g, '<span class="token number">$1</span>');
+
+            const t = translations[state.lang];
+            return `
+            <div class="code-container">
+                <div class="code-header">
+                    <span>${lang.toUpperCase()}</span>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="openFullscreenCode(this)"><i class="fas fa-expand"></i> ${t.expand}</button>
+                        <button class="code-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> ${t.copy}</button>
+                    </div>
+                </div>
+                <div class="code-scroll-area">
+                    <div class="code-content">${highlighted}</div>
+                </div>
+                <div style="display:none;" class="raw-code">${escapeHtml(code)}</div>
+            </div>`;
+        });
+        formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+        return formatted;
+    }
+    
+    // Global Window Functions
+    window.openFullscreenCode = function(btn) {
+        const rawCode = btn.closest('.code-container').querySelector('.raw-code').textContent;
+        const lang = btn.closest('.code-container').querySelector('.code-header span').textContent;
+        
+        els.codeContent.innerText = rawCode;
+        $('codeOverlayTitle').innerText = lang + " Editor";
+        els.codeOverlay.style.display = 'flex';
+    };
+
+    window.copyCode = function(btn) {
+        let code = "";
+        if(btn.id === 'copyOverlayBtn') {
+            code = els.codeContent.innerText;
+        } else {
+            code = btn.closest('.code-container').querySelector('.raw-code').textContent;
+        }
+        navigator.clipboard.writeText(code);
+        
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = `<i class="fas fa-check"></i>`;
+        setTimeout(() => btn.innerHTML = originalHTML, 2000);
+    };
+
+    window.runCodeFromOverlay = function() {
+        const code = els.codeContent.innerText;
+        els.runWindow.style.display = 'block';
+        const doc = els.runFrame.contentWindow.document;
+        doc.open();
+        doc.write(code); 
+        doc.close();
+    };
+
+    window.closeRunWindow = function() {
+        els.runWindow.style.display = 'none';
+        els.runFrame.src = "about:blank";
+    };
+
     function appendMessage(msg) {
         const div = document.createElement('div');
         div.className = `message ${msg.role === 'user' ? 'user' : 'bot'}`;
-        let content = '';
-        if(msg.image) content += `<img src="${msg.image}" class="sent-image"><br>`;
-        if(msg.content) content += escapeHtml(msg.content);
         
-        div.innerHTML = `
-            ${msg.role === 'assistant' ? '<div class="msg-header">Saif AI</div>' : ''}
-            <div class="msg-bubble">${content}</div>
-        `;
+        if (msg.role === 'user') {
+            let content = '';
+            if(msg.images && msg.images.length > 0) {
+                content += '<div class="sent-image-grid">';
+                msg.images.forEach(src => {
+                    content += `<img src="${src}" class="sent-image" onclick="showFs('${src}')">`;
+                });
+                content += '</div>';
+            }
+            content += escapeHtml(msg.content).replace(/\n/g, '<br>');
+            div.innerHTML = `<div class="msg-content-wrapper">${content}</div>`;
+        } else {
+            div.innerHTML = `<div class="msg-content-wrapper">${parseMarkdown(msg.content).replace(/\n(?![^<]*>)/g, "<br>")}</div>`;
+        }
         els.container.appendChild(div);
         scrollToBottom();
     }
@@ -406,11 +714,12 @@
     function saveMsg(msg) {
         if(!state.currentChatId) {
             state.currentChatId = Date.now();
-            state.chats.unshift({ id: state.currentChatId, title: msg.content.substring(0,20) || "New Chat", messages: [] });
+            const title = msg.content.slice(0, 20) || "New Chat";
+            state.chats.unshift({ id: state.currentChatId, title, messages: [] });
         }
         const chat = state.chats.find(c => c.id === state.currentChatId);
         if(chat) chat.messages.push(msg);
-        localStorage.setItem('saif_chats_vold', JSON.stringify(state.chats));
+        localStorage.setItem('saif_chats_v11', JSON.stringify(state.chats));
         renderHistory();
     }
 
@@ -431,51 +740,79 @@
         renderHistory();
     }
 
+    function getHistoryContext() {
+        if (!state.currentChatId) return [];
+        const chat = state.chats.find(c => c.id === state.currentChatId);
+        // Only send text for history context to save bandwidth/tokens, keeping it simple
+        return chat ? chat.messages.slice(-8).map(m => ({role: m.role, content: m.content})) : [];
+    }
+
     function renderHistory() {
         const list = $('historyList');
         list.innerHTML = '';
         state.chats.forEach(c => {
-            const d = document.createElement('div');
-            d.style.padding = '8px';
-            d.style.cursor = 'pointer';
-            d.style.color = '#888';
-            d.style.fontSize = '0.9rem';
-            d.textContent = c.title;
-            d.onclick = () => { loadChat(c.id); toggleSidebar(false); };
-            list.appendChild(d);
+            const btn = document.createElement('button');
+            btn.className = 'menu-item';
+            btn.innerHTML = `<i class="fas fa-comment-dots"></i> ${c.title}`;
+            btn.onclick = () => { loadChat(c.id); toggleSidebar(false); };
+            list.appendChild(btn);
         });
     }
 
-    function getHistoryContext() {
-        if (!state.currentChatId) return [];
-        const chat = state.chats.find(c => c.id === state.currentChatId);
-        return chat ? chat.messages.slice(-8).map(m => ({role: m.role, content: m.content})) : [];
-    }
-
-    function handleFile(e) {
-        const f = e.target.files[0];
-        if(!f) return;
-        const r = new FileReader();
-        r.onload = v => {
-            attachedImg = v.target.result;
-            els.preview.style.display = 'block';
-            els.preview.innerHTML = `<img src="${attachedImg}" class="preview-thumb">`;
-        };
-        r.readAsDataURL(f);
+    function handleFiles(e) {
+        const files = Array.from(e.target.files);
+        if(!files.length) return;
+        
+        files.forEach(file => {
+            const r = new FileReader();
+            r.onload = v => {
+                state.attachedImages.push(v.target.result);
+                renderImagePreview();
+            };
+            r.readAsDataURL(file);
+        });
         els.file.value = '';
     }
 
+    function renderImagePreview() {
+        els.previewCont.innerHTML = '';
+        if(state.attachedImages.length > 0) {
+            els.previewCont.style.display = 'flex';
+            state.attachedImages.forEach((src, idx) => {
+                const div = document.createElement('div');
+                div.className = 'preview-item';
+                div.innerHTML = `
+                    <img src="${src}" class="preview-thumb">
+                    <button class="remove-img-btn" onclick="removeImg(${idx})">×</button>
+                `;
+                els.previewCont.appendChild(div);
+            });
+        } else {
+            els.previewCont.style.display = 'none';
+        }
+    }
+
+    window.removeImg = function(idx) {
+        state.attachedImages.splice(idx, 1);
+        renderImagePreview();
+    };
+
+    window.showFs = function(src) {
+        els.fsImage.src = src;
+        els.fsImg.style.display = 'flex';
+    };
+
     function cycleLang() {
-        const langs = ['ar', 'en', 'fr', 'es', 'zh'];
-        let idx = langs.indexOf(state.lang);
-        state.lang = langs[(idx + 1) % langs.length];
+        state.lang = state.lang === 'en' ? 'ar' : 'en';
         applyLang(state.lang);
+        toggleSidebar(false);
     }
 
     function applyLang(l) {
-        localStorage.setItem('saif_lang', l);
+        localStorage.setItem('saif_lang_v7', l);
         document.documentElement.lang = l;
         document.documentElement.dir = l === 'ar' ? 'rtl' : 'ltr';
+        
         const t = translations[l];
         $('welcomeText').textContent = t.welcome;
         els.input.placeholder = t.placeholder;
@@ -484,31 +821,27 @@
         $('t_share').textContent = t.share;
         $('t_delete').textContent = t.delete;
         $('t_history').textContent = t.history;
+        $('menuTitle').textContent = l === 'ar' ? 'القائمة' : 'Menu';
+        
+        // Refresh toggle text
+        toggleModel(); toggleModel(); // Hack to refresh text logic
     }
 
     function toggleSidebar(open) {
-        if(open) {
-            els.sidebar.classList.add('open');
-            els.overlay.classList.add('show');
-        } else {
-            els.sidebar.classList.remove('open');
-            els.overlay.classList.remove('show');
-        }
+        if(open) { els.sidebar.classList.add('open'); els.overlay.classList.add('show'); }
+        else { els.sidebar.classList.remove('open'); els.overlay.classList.remove('show'); }
     }
 
     function deleteChat() {
         if(state.currentChatId) {
             state.chats = state.chats.filter(c => c.id !== state.currentChatId);
-            localStorage.setItem('saif_chats_vold', JSON.stringify(state.chats));
-            loadChat(null);
-            toggleSidebar(false);
+            localStorage.setItem('saif_chats_v11', JSON.stringify(state.chats));
+            loadChat(null); toggleSidebar(false);
         }
     }
 
     function showToast(txt) {
-        const t = $('toast');
-        t.textContent = txt;
-        t.classList.add('show');
+        const t = $('toast'); t.textContent = txt; t.classList.add('show');
         setTimeout(() => t.classList.remove('show'), 2000);
     }
 
