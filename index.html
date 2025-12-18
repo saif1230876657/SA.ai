@@ -1,713 +1,698 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Saif AI</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#000000" />
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    :root {
-      --bg-color: #000000;
-      --text-main: #ffffff;
-      --text-sec: #b0b0b0;
-      --code-bg: #1e1e1e;
-      --bot-msg-bg: transparent; /* ChatGPT Style: No background for bot */
-      --user-msg-bg: #2f2f2f;
-      --icon-hover: #ececec;
-      --icon-dim: #7d7d7d;
-    }
-    * { box-sizing: border-box; font-family: 'Tajawal', sans-serif; -webkit-tap-highlight-color: transparent; outline: none; }
-    body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background-color: var(--bg-color); color: var(--text-main); }
-
-    /* --- Space Background --- */
-    .space-background { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; z-index: 0; pointer-events: none; background: #000; }
-    .moon { position: absolute; top: 5%; right: 5%; width: 70px; opacity: 0.8; filter: drop-shadow(0 0 10px rgba(255,255,255,0.1)); }
-    .star { position: absolute; background: white; border-radius: 50%; width: 2px; height: 2px; box-shadow: 0 0 6px 2px rgba(255,255,255,0.8); animation: twinkle 3s infinite ease-in-out; }
-    .star:nth-child(1) { top: 15%; left: 25%; animation-delay: 0s; }
-    .star:nth-child(2) { top: 35%; left: 85%; animation-delay: 1.5s; }
-    .star:nth-child(3) { top: 65%; left: 15%; animation-delay: 2.5s; }
-    @keyframes twinkle { 0%, 100% { opacity: 0.2; transform: scale(0.5); } 50% { opacity: 1; transform: scale(1.5); } }
-
-    /* --- Header --- */
-    .header {
-        position: absolute; top: 0; left: 0; right: 0; height: 60px;
-        display: flex; align-items: center; justify-content: space-between;
-        padding: 0 20px; z-index: 100;
-        background: transparent;
-    }
-    .brand { font-size: 1.4rem; font-weight: 700; color: white; letter-spacing: 1px; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
-    .menu-btn { background: none; border: none; color: white; font-size: 1.4rem; cursor: pointer; padding: 10px; opacity: 0.8; transition: 0.3s; }
-    .menu-btn:hover { opacity: 1; transform: scale(1.1); }
-
-    /* --- Chat Area --- */
-    .app-container { display: flex; flex-direction: column; height: 100%; position: relative; z-index: 1; }
-    .chat-view { flex: 1; overflow-y: auto; padding: 70px 0 160px 0; scroll-behavior: smooth; position: relative; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Seif AI</title>
     
-    .empty-state {
-        position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
-        text-align: center; width: 100%; opacity: 0.9;
-    }
-    .astronaut-img { width: 140px; animation: float 6s ease-in-out infinite; margin-bottom: 25px; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.8)); }
-    .welcome-text { font-size: 1.2rem; color: rgba(255,255,255,0.9); font-weight: 500; }
-    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
 
-    /* --- Messages & ChatGPT Style Formatting --- */
-    .message-row {
-        width: 100%;
-        padding: 20px 15px;
-        display: flex;
-        flex-direction: column;
-        border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    .message-row.user { background: transparent; align-items: flex-end; }
-    .message-row.bot { background: rgba(255,255,255,0.02); align-items: flex-start; }
+    <style>
+        :root {
+            --bg-main: #000000;
+            --bg-glass: rgba(18, 18, 18, 0.95);
+            --border: #333;
+            --text: #fff;
+            --radius-pill: 50px;
+            --radius-box: 16px;
+            --msg-user: #1a1a1a;
+            --highlight: #00e676;
+            --danger: #ff4444;
+        }
 
-    .msg-content {
-        max-width: 95%;
-        line-height: 1.7;
-        font-size: 1rem;
-        color: #eee;
-        word-wrap: break-word;
-    }
-    .message-row.user .msg-content {
-        background: var(--user-msg-bg);
-        padding: 10px 18px;
-        border-radius: 20px;
-        max-width: 85%;
-        border-bottom-right-radius: 4px;
-    }
-    html[dir="rtl"] .message-row.user .msg-content { border-bottom-right-radius: 20px; border-bottom-left-radius: 4px; }
-    
-    .message-row.bot .msg-content {
-        width: 100%;
-        max-width: 100%;
-        padding: 0 5px;
-    }
+        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+        body { 
+            margin: 0; background: var(--bg-main); color: var(--text); 
+            font-family: 'IBM Plex Sans Arabic', sans-serif; 
+            height: 100vh; overflow: hidden; display: flex; 
+        }
 
-    /* Markdown Formatting */
-    .msg-content h1, .msg-content h2, .msg-content h3 { margin-top: 20px; margin-bottom: 10px; font-weight: 700; color: #fff; }
-    .msg-content p { margin-bottom: 15px; }
-    .msg-content ul, .msg-content ol { margin-bottom: 15px; padding-left: 20px; }
-    html[dir="rtl"] .msg-content ul, html[dir="rtl"] .msg-content ol { padding-left: 0; padding-right: 20px; }
-    .msg-content li { margin-bottom: 5px; }
-    .msg-content strong { color: #fff; font-weight: 700; }
+        /* --- Dynamic Sky --- */
+        .sky-container { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; opacity: 0.5; }
+        .star { position: absolute; background: white; border-radius: 50%; opacity: 0.3; }
+        .meteor {
+            position: absolute; width: 2px; height: 100px;
+            background: linear-gradient(to bottom, transparent, white);
+            opacity: 0; filter: drop-shadow(0 0 6px white);
+        }
+        @keyframes meteor-fall {
+            0% { transform: translateY(-100px) translateX(0) rotate(20deg); opacity: 1; }
+            100% { transform: translateY(120vh) translateX(-200px) rotate(20deg); opacity: 0; }
+        }
 
-    /* --- Action Bar (Like, Dislike, Copy, Speak) --- */
-    .msg-actions {
-        display: flex;
-        gap: 15px;
-        margin-top: 10px;
-        padding-left: 5px;
-        opacity: 0.9;
-    }
-    html[dir="rtl"] .msg-actions { padding-left: 0; padding-right: 5px; }
-    
-    .action-btn {
-        background: transparent;
-        border: none;
-        color: var(--icon-dim);
-        cursor: pointer;
-        font-size: 1rem;
-        transition: all 0.2s;
-        display: flex; align-items: center; gap: 5px;
-        padding: 5px;
-        border-radius: 4px;
-    }
-    .action-btn:hover { color: var(--icon-hover); background: rgba(255,255,255,0.1); }
-    .action-btn.active { color: #4caf50; } /* Green for Like/Copy */
-    .action-btn.disliked { color: #f44336; } /* Red for Dislike */
+        /* --- Sidebar --- */
+        .sidebar {
+            width: 280px; background: #050505; height: 100%;
+            position: fixed; right: 0; top: 0; z-index: 200;
+            transform: translateX(100%); transition: 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            border-left: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px;
+        }
+        .sidebar.open { transform: translateX(0); }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        
+        /* Better Close Icon */
+        .close-btn { 
+            background: rgba(255,255,255,0.1); border: none; color: #fff; width: 32px; height: 32px; 
+            border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: 0.2s;
+        }
+        .close-btn:hover { background: rgba(255,255,255,0.2); }
+        
+        .history-list { flex: 1; overflow-y: auto; }
+        .chat-item { 
+            padding: 12px; margin-bottom: 5px; border-radius: 8px; 
+            color: #888; cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+            transition: 0.2s; 
+        }
+        .chat-item:hover { background: #111; color: #fff; }
+        .chat-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80%; }
+        .chat-del-btn { background: none; border: none; color: #555; cursor: pointer; opacity: 0; transition:0.2s; }
+        .chat-item:hover .chat-del-btn { opacity: 1; }
+        .chat-del-btn:hover { color: var(--danger); }
 
-    .sent-image-grid { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 5px; }
-    .sent-image { max-width: 200px; max-height: 200px; border-radius: 8px; object-fit: cover; cursor: pointer; border: 1px solid #333; }
+        .sidebar-btn {
+            background: #111; border: 1px solid #333; color: white;
+            padding: 12px; border-radius: 12px; width: 100%;
+            cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
 
-    /* CODE BLOCKS (VS Code Dark Style) */
-    .code-container {
-        background: #0d0d0d;
-        border: 1px solid #333;
-        border-radius: 6px;
-        margin: 15px 0;
-        overflow: hidden;
-        width: 100%;
-        font-family: 'Fira Code', monospace;
-    }
-    .code-header {
-        background: #2d2d2d;
-        padding: 6px 12px;
-        font-size: 0.75rem;
-        color: #b0b0b0;
-        display: flex; justify-content: space-between; align-items: center;
-        border-bottom: 1px solid #333;
-    }
-    .code-actions { display: flex; gap: 10px; }
-    .code-btn {
-        background: transparent; border: none; color: #b0b0b0;
-        cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; gap: 4px;
-    }
-    .code-btn:hover { color: white; }
+        /* --- Main Layout --- */
+        .main-content {
+            flex: 1; display: flex; flex-direction: column; 
+            position: relative; z-index: 1; width: 100%;
+        }
 
-    .code-scroll-area { overflow-x: auto; padding: 12px; background: #0d0d0d; }
-    .code-content { color: #d4d4d4; font-family: 'Fira Code', monospace; font-size: 0.9rem; white-space: pre; }
-    
-    /* Syntax Highlighting */
-    .token.keyword { color: #c586c0; }
-    .token.string { color: #ce9178; }
-    .token.comment { color: #6a9955; }
-    .token.number { color: #b5cea8; }
-    
-    /* --- Input Area --- */
-    .input-area {
-        position: absolute; bottom: 20px; left: 0; right: 0;
-        padding: 0 15px; z-index: 50; display: flex; justify-content: center;
-    }
-    .input-container {
-        width: 100%; max-width: 800px;
-        background: rgba(20, 20, 20, 0.85);
-        backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 26px; padding: 10px 15px;
-        display: flex; flex-direction: column; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-    }
-    .input-controls { display: flex; justify-content: space-between; align-items: center; padding-top: 5px; }
-    textarea {
-        width: 100%; background: transparent; border: none;
-        color: white; padding: 8px 5px; resize: none;
-        max-height: 150px; font-size: 1rem; line-height: 1.5;
-    }
-    textarea::placeholder { color: rgba(255,255,255,0.4); }
+        .top-bar {
+            height: 60px; display: flex; align-items: center; justify-content: space-between;
+            padding: 0 20px; position: absolute; top: 0; width: 100%; z-index: 10;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.95), transparent);
+        }
+        .brand { 
+            font-size: 1.3rem; font-weight: 700; letter-spacing: 1px; transition: 0.3s; 
+        }
+        .brand.dark-mode { 
+            color: #ff4444; text-shadow: 0 0 15px #ff0000; font-family: 'Fira Code', monospace; 
+        }
 
-    .left-controls, .right-controls { display: flex; align-items: center; gap: 12px; }
-    .tool-btn { background: transparent; border: none; color: #888; cursor: pointer; font-size: 1.2rem; transition: 0.2s; padding: 5px; }
-    .tool-btn:hover { color: white; }
-    
-    .model-switch-btn {
-        background: rgba(255,255,255,0.08); border-radius: 12px; padding: 6px 10px;
-        font-size: 0.8rem; color: #bbb; display: flex; gap: 6px; align-items: center; 
-        cursor: pointer; border: none; transition: 0.3s;
-    }
-    .model-switch-btn.thinker { background: rgba(142, 68, 173, 0.25); color: #e1bee7; border: 1px solid rgba(142, 68, 173, 0.5); }
-    .voice-btn.recording { color: #ff4444; animation: pulse 1.5s infinite; }
-    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        /* --- Chat Area --- */
+        .chat-container {
+            flex: 1; overflow-y: auto; 
+            padding: 80px 15px 140px 15px;
+            scroll-behavior: smooth; display: flex; flex-direction: column;
+        }
 
-    .send-btn {
-        width: 38px; height: 38px; border-radius: 50%;
-        background: white; color: black; border: none;
-        display: flex; justify-content: center; align-items: center;
-        cursor: pointer; font-size: 1rem; transition: transform 0.2s;
-    }
-    .send-btn:hover { transform: scale(1.05); }
+        /* Messages */
+        .msg-row { display: flex; flex-direction: column; margin-bottom: 25px; animation: slideIn 0.3s ease-out; width: 100%; }
+        .msg-row.user { align-items: flex-end; }
+        .msg-row.bot { align-items: flex-start; }
+        
+        .msg-content { 
+            max-width: 90%; line-height: 1.7; font-size: 1rem; color: #eee; 
+            position: relative;
+        }
+        .user .msg-content { 
+            background: var(--msg-user); padding: 12px 18px; border-radius: 20px; 
+            border-bottom-left-radius: 4px; 
+        }
+        .bot .msg-content { width: 100%; padding-left: 5px; }
 
-    /* Preview & Sidebar etc */
-    .img-preview-container { display: none; padding: 10px 0; gap: 8px; flex-wrap: wrap; }
-    .preview-item { position: relative; width: 60px; height: 60px; }
-    .preview-thumb { width: 100%; height: 100%; border-radius: 8px; object-fit: cover; border: 1px solid #444; }
-    .remove-img-btn { position: absolute; top: -5px; right: -5px; background: #d32f2f; color: white; border-radius: 50%; width: 18px; height: 18px; border:none; cursor: pointer; font-size: 10px; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* Sidebar */
-    .sidebar {
-        position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
-        background: #0a0a0a; border-right: 1px solid rgba(255,255,255,0.05); z-index: 1000;
-        transition: left 0.3s ease; padding: 20px; display: flex; flex-direction: column;
-    }
-    html[dir="rtl"] .sidebar { left: auto; right: -280px; border-right: none; border-left: 1px solid rgba(255,255,255,0.05); transition: right 0.3s; }
-    .sidebar.open { left: 0; }
-    html[dir="rtl"] .sidebar.open { right: 0; }
-    
-    .menu-item { background: transparent; border: none; color: #ccc; width: 100%; padding: 12px; text-align: left; border-radius: 8px; cursor: pointer; margin-bottom: 5px; display: flex; align-items: center; gap: 10px; font-size: 0.95rem; }
-    html[dir="rtl"] .menu-item { text-align: right; }
-    .menu-item:hover { background: rgba(255,255,255,0.1); color: white; }
-    
-    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 900; display: none; backdrop-filter: blur(3px); }
-    .overlay.show { display: block; }
+        /* Action Buttons (Below Message) */
+        .msg-actions {
+            display: flex; gap: 15px; margin-top: 8px; justify-content: flex-start;
+            padding-left: 5px; opacity: 0.7; transition: 0.2s;
+        }
+        .msg-actions:hover { opacity: 1; }
+        .action-btn {
+            background: none; border: none; color: #666; cursor: pointer; font-size: 1rem;
+            display: flex; align-items: center; gap: 5px; transition: 0.2s; padding: 5px;
+        }
+        .action-btn:hover { color: #fff; background: rgba(255,255,255,0.05); border-radius: 4px; }
+        
+        /* Interactive States */
+        .action-btn.liked { color: var(--highlight) !important; }
+        .action-btn.disliked { color: var(--danger) !important; }
 
-    .toast {
-        position: fixed; top: 30px; left: 50%; transform: translateX(-50%);
-        background: #222; color: white; padding: 10px 20px;
-        border-radius: 20px; border: 1px solid #444; font-size: 0.9rem;
-        opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 3000;
-    }
-    .toast.show { opacity: 1; }
-    
-    .typing-text { font-size: 0.9rem; color: #888; font-style: italic; animation: blink 1.5s infinite; }
-    @keyframes blink { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
+        /* --- Code Blocks (Medium & Clean) --- */
+        .code-wrapper {
+            margin: 20px 0; border: 1px solid #333; border-radius: 12px;
+            background: #0d0d0d; overflow: hidden; font-family: 'Fira Code', monospace;
+            direction: ltr; text-align: left; width: 100%;
+        }
+        .code-header {
+            background: #1a1a1a; padding: 8px 15px;
+            display: flex; justify-content: flex-end; gap: 10px; border-bottom: 1px solid #222;
+        }
+        .code-btn {
+            background: transparent; border: 1px solid #444; color: #ccc;
+            padding: 5px 12px; border-radius: 6px; cursor: pointer;
+            font-size: 0.85rem; display: flex; align-items: center; gap: 6px;
+        }
+        .code-btn:hover { background: #333; color: white; }
+        .code-scroll-area {
+            /* Medium Size - Scrollable */
+            max-height: 400px; 
+            overflow: auto;
+            padding: 0;
+        }
+        pre { margin: 0; padding: 20px; white-space: pre; /* Keeps code formatting strictly */ }
+        code { font-family: 'Fira Code', monospace !important; font-size: 0.95rem; line-height: 1.6; }
 
-    /* Fullscreen Code */
-    .code-overlay { position: fixed; inset: 0; background: #1e1e1e; z-index: 2000; display: none; flex-direction: column; }
-    .code-overlay-header { height: 50px; background: #252526; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-bottom: 1px solid #333; }
-    .code-overlay-content { flex: 1; padding: 20px; overflow: auto; color: #d4d4d4; font-family: 'Fira Code', monospace; white-space: pre; }
-  </style>
+        /* --- Wave Animation (Loader) --- */
+        .thinking-wave {
+            display: flex; align-items: center; gap: 5px; height: 30px; margin: 10px 0;
+        }
+        .wave-bar {
+            width: 5px; background: linear-gradient(to top, #444, #fff); border-radius: 3px;
+            animation: wave 1s infinite ease-in-out;
+        }
+        .wave-bar:nth-child(1) { height: 10px; animation-delay: 0.0s; }
+        .wave-bar:nth-child(2) { height: 25px; animation-delay: 0.1s; }
+        .wave-bar:nth-child(3) { height: 15px; animation-delay: 0.2s; }
+        .wave-bar:nth-child(4) { height: 30px; animation-delay: 0.3s; }
+        .wave-bar:nth-child(5) { height: 15px; animation-delay: 0.4s; }
+        @keyframes wave { 0%,100% { height: 10px; opacity: 0.5; } 50% { height: 30px; opacity: 1; } }
+
+        /* --- Input Area --- */
+        .input-area {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            padding: 0 20px 30px 20px; z-index: 50;
+            background: linear-gradient(to top, #000 60%, transparent);
+            display: flex; justify-content: center;
+        }
+        .input-box {
+            width: 100%; max-width: 800px;
+            background: var(--bg-glass); backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-pill);
+            padding: 8px 10px 8px 20px; display: flex; align-items: center; gap: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+        }
+        textarea {
+            flex: 1; background: transparent; border: none; color: white;
+            padding: 12px 0; resize: none; font-size: 1rem; max-height: 120px; font-family: inherit;
+        }
+        .icon-btn {
+            background: none; border: none; color: #888; cursor: pointer;
+            font-size: 1.1rem; padding: 8px; border-radius: 50%; transition: 0.2s;
+        }
+        .icon-btn:hover { color: white; background: rgba(255,255,255,0.1); }
+        .ghost-active { color: var(--danger) !important; text-shadow: 0 0 8px #ff0000; }
+
+        /* Smart Button (Wave/Send) */
+        .smart-action-btn {
+            width: 40px; height: 40px; border-radius: 50%; border: none;
+            background: white; color: black; display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; cursor: pointer; transition: 0.2s;
+        }
+        .smart-action-btn:hover { transform: scale(1.05); }
+        .smart-action-btn.recording { background: var(--danger); color: white; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 68, 68, 0); } }
+
+        /* --- Welcome Screen --- */
+        .welcome {
+            position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
+            text-align: center; width: 100%; transition: 0.3s;
+        }
+        .logo-text { font-size: 3.5rem; font-weight: 700; margin-bottom: 40px; color: #fff; }
+        
+        .chips { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-bottom: 40px; }
+        .chip {
+            background: rgba(255,255,255,0.05); border: 1px solid #333; color: #ccc;
+            padding: 10px 20px; border-radius: 30px; cursor: pointer; font-size: 0.95rem;
+            display: flex; align-items: center; gap: 8px; transition: 0.2s;
+        }
+        .chip:hover { border-color: #666; background: rgba(255,255,255,0.1); color: white; }
+
+        /* --- Code Runner Overlay --- */
+        .code-runner-overlay {
+            position: fixed; inset: 0; background: #111; z-index: 2000;
+            display: none; flex-direction: column;
+        }
+        .runner-header {
+            height: 50px; background: #222; display: flex; align-items: center; padding: 0 20px;
+            border-bottom: 1px solid #333;
+        }
+        .back-btn {
+            background: none; border: none; color: white; font-size: 1rem; cursor: pointer;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .runner-frame { flex: 1; border: none; background: white; }
+
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 150; display: none; }
+    </style>
 </head>
 <body>
 
-<div class="space-background">
-    <img src="https://i.postimg.cc/Y9qbgjmX/moon-PNG20.png" alt="Moon" class="moon">
-    <div class="star"></div><div class="star"></div><div class="star"></div>
-</div>
+    <div class="sky-container" id="sky"></div>
 
-<div class="app-container">
-    <header class="header">
-        <button class="menu-btn" id="menuBtn"><i class="fas fa-bars"></i></button>
-        <span class="brand">Saif AI</span>
-        <div style="width: 24px;"></div>
-    </header>
-
-    <div class="chat-view" id="chatContainer">
-        <div class="empty-state" id="emptyState">
-            <img src="https://i.postimg.cc/15L2K4wT/1000137153.png" alt="Astronaut" class="astronaut-img">
-            <div class="welcome-text" id="welcomeText">Hello, I'm ready.</div>
+    <!-- Sidebar -->
+    <div class="overlay" id="overlay" onclick="toggleSidebar(false)"></div>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>السجل</h3>
+            <button class="close-btn" onclick="toggleSidebar(false)"><i class="fas fa-chevron-right"></i></button>
         </div>
+        
+        <button class="sidebar-btn" onclick="toggleLang()" style="margin-bottom: 20px;">
+            <i class="fas fa-globe"></i> <span id="langTxt">English</span>
+        </button>
+
+        <div class="history-list" id="historyList"></div>
+        
+        <button class="sidebar-btn" style="margin-top:auto;" onclick="newChat()">
+            <i class="fas fa-plus"></i> <span id="newChatTxt">محادثة جديدة</span>
+        </button>
     </div>
 
-    <!-- Input Area -->
-    <div class="input-area">
-        <div class="input-container">
-            <div class="img-preview-container" id="imgPreviewContainer"></div>
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="top-bar">
+            <!-- Left Controls -->
+            <div style="display: flex; gap: 10px;">
+                <button class="icon-btn" id="ghostBtn" onclick="toggleGhost()" title="وضع الشبح">
+                    <i class="fas fa-ghost"></i>
+                </button>
+                <button class="icon-btn" onclick="clearCurrentChat()" id="clearBtn" style="display:none;">
+                    <i class="fas fa-eraser"></i>
+                </button>
+            </div>
             
-            <textarea id="userInput" rows="1" dir="auto" placeholder="Type your message..."></textarea>
+            <div class="brand" id="brandText">Seif AI</div>
             
-            <div class="input-controls">
-                <div class="left-controls">
-                    <button class="model-switch-btn" id="modelToggle">
-                        <i class="fas fa-bolt"></i> <span id="modelNameDisplay">Fast</span>
-                    </button>
-                    <input type="file" id="fileInput" accept="image/*" multiple hidden>
-                    <button class="tool-btn" id="uploadBtn"><i class="fas fa-paperclip"></i></button>
-                    <button class="tool-btn voice-btn" id="voiceBtn"><i class="fas fa-microphone"></i></button>
-                </div>
-                <div class="right-controls">
-                    <button class="send-btn" id="sendBtn"><i class="fas fa-paper-plane"></i></button>
-                </div>
+            <button class="icon-btn" onclick="toggleSidebar(true)"><i class="fas fa-bars"></i></button>
+        </div>
+
+        <!-- Welcome -->
+        <div class="welcome" id="welcomeScreen">
+            <div class="logo-text" id="welcomeLogo">Seif AI</div>
+            <div class="chips">
+                <div class="chip" onclick="fillInput('Deep Search Tech')"><i class="fas fa-globe"></i> <span class="chip-txt">بحث</span></div>
+                <div class="chip" onclick="fillInput('Write HTML/JS Game')"><i class="fas fa-code"></i> <span class="chip-txt">برمجة</span></div>
+                <div class="chip" onclick="fillInput('Imagine a futuristic city')"><i class="fas fa-paint-brush"></i> Seif Imagine</div>
+            </div>
+        </div>
+
+        <!-- Chat -->
+        <div class="chat-container" id="chatContainer" style="display: none;"></div>
+
+        <!-- Input -->
+        <div class="input-area">
+            <div class="input-box">
+                <input type="file" id="fileInput" hidden accept="image/*" onchange="handleImage(this)">
+                <button class="icon-btn" onclick="document.getElementById('fileInput').click()"><i class="fas fa-paperclip"></i></button>
+                
+                <textarea id="userInput" rows="1" placeholder="..."></textarea>
+                <div id="imgPreview" style="display:none; width:30px; height:30px; border-radius:4px; overflow:hidden;"></div>
+                
+                <!-- Smart Action Button (Wave/Send) -->
+                <button class="smart-action-btn" id="smartBtn" onclick="handleSmartClick()">
+                    <i class="fas fa-microphone-lines"></i>
+                </button>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Sidebar -->
-<div class="overlay" id="overlay"></div>
-<div class="sidebar" id="sidebar">
-    <div style="display:flex; justify-content:space-between; margin-bottom:20px; align-items:center;">
-        <h3 style="color:white; margin:0;" id="menuTitle">Menu</h3>
-        <button class="menu-btn" id="closeSidebar"><i class="fas fa-times"></i></button>
-    </div>
-    <div style="flex: 1; overflow-y: auto;">
-        <button class="menu-item" id="newChatBtn"><i class="fas fa-plus"></i> <span id="t_newChat">New Chat</span></button>
-        <button class="menu-item" id="langBtn"><i class="fas fa-globe"></i> <span id="t_lang">Language: English</span></button>
-        <div style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top:10px;">
-            <span style="font-size: 0.75rem; color: #666; padding: 0 10px; font-weight: bold;">HISTORY</span>
-            <div id="historyList" style="margin-top: 10px;"></div>
+    <!-- Code Runner Overlay -->
+    <div class="code-runner-overlay" id="codeRunner">
+        <div class="runner-header">
+            <button class="back-btn" onclick="closeRunner()">
+                <i class="fas fa-arrow-right"></i> رجوع
+            </button>
+            <span style="margin-right:auto; color:#888;">Live Preview</span>
         </div>
+        <iframe class="runner-frame" id="runnerFrame"></iframe>
     </div>
-    <button class="menu-item" id="clearChatBtn" style="color: #d32f2f; margin-top: auto;"><i class="fas fa-trash"></i> <span id="t_delete">Delete Chat</span></button>
-</div>
 
-<!-- Fullscreen Code Overlay -->
-<div class="code-overlay" id="codeOverlay">
-    <div class="code-overlay-header">
-        <span style="color:white; font-family:'Fira Code';">Code Editor</span>
-        <button class="menu-btn" onclick="document.getElementById('codeOverlay').style.display='none'"><i class="fas fa-times"></i></button>
-    </div>
-    <div class="code-overlay-content" id="codeOverlayContent"></div>
-</div>
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
 
-<div class="toast" id="toast"></div>
+    <script>
+        const CONFIG = { models: ['openai', 'qwen', 'mistral'] };
 
-<script>
-    // --- State & Config ---
-    const state = {
-        lang: localStorage.getItem('saif_lang_v8') || 'en', 
-        isThinking: false, 
-        chats: JSON.parse(localStorage.getItem('saif_chats_v12') || '[]'),
-        userPreferences: JSON.parse(localStorage.getItem('saif_prefs_v1') || '{"liked":[], "disliked":[]}'),
-        currentChatId: null,
-        typing: false,
-        attachedImages: [],
-        recognition: null,
-        lastDislikedContent: "" // Temp memory for immediate context
-    };
+        const state = {
+            chats: JSON.parse(localStorage.getItem('seif_chats_final') || '[]'),
+            currentChatId: null,
+            imageBase64: null,
+            isIncognito: false,
+            lang: localStorage.getItem('seif_lang') || 'ar',
+            isRecording: false,
+            recognition: null
+        };
 
-    const translations = {
-        en: {
-            welcome: "Hello, I'm ready.", placeholder: "Message Saif AI...",
-            newChat: "New Chat", langName: "Language: English",
-            delete: "Delete Chat", fast: "Fast", think: "Thinker", typing: "Typing...",
-            copy: "Copy", copied: "Copied!", speak: "Read Aloud"
-        },
-        ar: {
-            welcome: "مرحباً، أنا مستعد.", placeholder: "راسل Saif AI...",
-            newChat: "محادثة جديدة", langName: "اللغة: العربية",
-            delete: "حذف المحادثة", fast: "سريع", think: "مفكر", typing: "يكتب...",
-            copy: "نسخ", copied: "تم النسخ!", speak: "قراءة"
-        }
-    };
+        const texts = {
+            ar: { newChat: "محادثة جديدة", lang: "English", brand: "Seif AI", brandDark: "Seif Dark", ask: "اسأل Seif AI...", search:"بحث", code:"برمجة" },
+            en: { newChat: "New Chat", lang: "عربي", brand: "Seif AI", brandDark: "Seif Dark", ask: "Ask Seif AI...", search:"Search", code:"Coding" }
+        };
 
-    const $ = id => document.getElementById(id);
-    const els = {
-        input: $('userInput'), container: $('chatContainer'), empty: $('emptyState'),
-        send: $('sendBtn'), upload: $('uploadBtn'), file: $('fileInput'), voice: $('voiceBtn'),
-        modelBtn: $('modelToggle'), sidebar: $('sidebar'), overlay: $('overlay')
-    };
+        const els = {
+            input: document.getElementById('userInput'),
+            chatContainer: document.getElementById('chatContainer'),
+            welcome: document.getElementById('welcomeScreen'),
+            sky: document.getElementById('sky'),
+            brand: document.getElementById('brandText'),
+            smartBtn: document.getElementById('smartBtn')
+        };
 
-    // --- Init ---
-    function init() {
-        applyLang(state.lang);
-        loadChat(state.chats.length ? state.chats[0].id : null);
-        initSpeechRecognition();
-
-        $('menuBtn').onclick = () => toggleSidebar(true);
-        $('closeSidebar').onclick = els.overlay.onclick = () => toggleSidebar(false);
-        els.send.onclick = sendMessage;
-        els.upload.onclick = () => els.file.click();
-        els.file.onchange = handleFiles;
-        els.voice.onclick = toggleVoice;
-        els.modelBtn.onclick = toggleModel;
-        
-        els.input.addEventListener('input', function() {
-            this.style.height = 'auto'; this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-        });
-        els.input.addEventListener('keydown', e => {
-            if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-        });
-
-        $('newChatBtn').onclick = () => { loadChat(null); toggleSidebar(false); };
-        $('clearChatBtn').onclick = deleteChat;
-        $('langBtn').onclick = cycleLang;
-    }
-
-    // --- Logic ---
-    function toggleModel() {
-        state.isThinking = !state.isThinking;
-        const icon = els.modelBtn.querySelector('i');
-        const txt = state.lang === 'ar' ? (state.isThinking ? "مفكر" : "سريع") : (state.isThinking ? "Thinker" : "Fast");
-        els.modelBtn.className = state.isThinking ? "model-switch-btn thinker" : "model-switch-btn";
-        icon.className = state.isThinking ? "fas fa-brain" : "fas fa-bolt";
-        $('modelNameDisplay').textContent = txt;
-    }
-
-    function initSpeechRecognition() {
-        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            state.recognition = new SpeechRecognition();
-            state.recognition.continuous = false;
-            state.recognition.onresult = (event) => {
-                els.input.value += (els.input.value ? ' ' : '') + event.results[0][0].transcript;
-                els.voice.classList.remove('recording');
-            };
-            state.recognition.onend = () => els.voice.classList.remove('recording');
-        } else { els.voice.style.display = 'none'; }
-    }
-
-    function toggleVoice() {
-        if (!state.recognition) return;
-        els.voice.classList.add('recording');
-        state.recognition.lang = state.lang === 'ar' ? 'ar-SA' : 'en-US';
-        state.recognition.start();
-    }
-
-    async function sendMessage() {
-        const text = els.input.value.trim();
-        if ((!text && state.attachedImages.length === 0) || state.typing) return;
-        
-        state.typing = true;
-        els.empty.style.display = 'none';
-        
-        const currentImages = [...state.attachedImages];
-        const userMsg = { role: 'user', content: text, images: currentImages };
-        appendMessage(userMsg);
-        saveMsg(userMsg);
-
-        els.input.value = ''; els.input.style.height = 'auto';
-        state.attachedImages = []; $('imgPreviewContainer').style.display = 'none';
-
-        const tempId = 'temp-' + Date.now();
-        const botDiv = document.createElement('div');
-        botDiv.className = 'message-row bot';
-        botDiv.id = tempId;
-        botDiv.innerHTML = `<div class="msg-content"><span class="typing-text">${translations[state.lang].typing}</span></div>`;
-        els.container.appendChild(botDiv);
-        scrollToBottom();
-
-        // --- INTELLIGENT SYSTEM PROMPT ---
-        let systemPrompt = `You are Saif AI. Helpful, smart, and professional. 
-        Formatting: Use Markdown. Use headings, lists, and bold text for clarity.
-        If asking for code, provide it in a code block.
-        Lang: Respond in ${state.lang === 'ar' ? 'Arabic' : 'English'}.
-        `;
-
-        // INJECT PREFERENCES (Logic to understand user likes/dislikes)
-        if (state.lastDislikedContent) {
-            systemPrompt += `\n[IMPORTANT]: The user DISLIKED the previous response style which was: "${state.lastDislikedContent.substring(0, 100)}...". AVOID this style/content in this response. Try a different approach.`;
-        }
-        if (state.userPreferences.liked.length > 0) {
-            systemPrompt += `\n[HINT]: The user has previously LIKED messages that are organized and helpful. Maintain high quality.`;
-        }
-        
-        // Prepare Payload
-        let messagesPayload = [
-            { role: "system", content: systemPrompt },
-            ...getHistoryContext()
-        ];
-        
-        let userContent = text;
-        if (currentImages.length > 0) {
-             userContent = [];
-             if(text) userContent.push({type:"text", text: text});
-             currentImages.forEach(img => userContent.push({type:"image_url", image_url: {url: img}}));
-        }
-        messagesPayload.push({ role: "user", content: userContent });
-
-        try {
-            const res = await fetch('https://text.pollinations.ai/', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ 
-                    messages: messagesPayload, 
-                    model: state.isThinking ? 'searchgpt' : 'openai',
-                    jsonMode: false 
-                })
+        // --- Init ---
+        function init() {
+            createStars();
+            updateLangUI();
+            renderHistory();
+            
+            // Input Listener to toggle Icon
+            els.input.addEventListener('input', function() {
+                this.style.height = 'auto'; this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+                updateSmartButton();
             });
-            
-            const data = await res.text();
-            document.getElementById(tempId).remove();
-            
-            const botMsg = { role: 'assistant', content: data, id: Date.now() }; // ID for Feedback
-            appendMessage(botMsg);
-            saveMsg(botMsg);
-            
-            // Clear immediate dislike memory after a new successful turn
-            state.lastDislikedContent = ""; 
+            els.input.addEventListener('keydown', e => {
+                if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+            });
 
-        } catch (e) {
-            document.getElementById(tempId).innerHTML = `<div class="msg-content" style="color:#f44336">Error.</div>`;
-        }
-        state.typing = false;
-    }
-
-    // --- Message Rendering & Actions ---
-    function appendMessage(msg) {
-        const div = document.createElement('div');
-        div.className = `message-row ${msg.role === 'user' ? 'user' : 'bot'}`;
-        
-        let htmlContent = '';
-        if (msg.role === 'user') {
-            if(msg.images && msg.images.length) {
-                htmlContent += `<div class="sent-image-grid">` + msg.images.map(src => `<img src="${src}" class="sent-image">`).join('') + `</div>`;
+            // Voice Setup
+            if('webkitSpeechRecognition' in window) {
+                const r = new webkitSpeechRecognition();
+                r.lang = 'ar-EG';
+                r.onstart = () => { state.isRecording = true; els.smartBtn.classList.add('recording'); };
+                r.onend = () => { state.isRecording = false; els.smartBtn.classList.remove('recording'); updateSmartButton(); };
+                r.onresult = e => { 
+                    els.input.value += (els.input.value ? ' ' : '') + e.results[0][0].transcript;
+                    updateSmartButton();
+                };
+                state.recognition = r;
             }
-            htmlContent += escapeHtml(msg.content).replace(/\n/g, '<br>');
-        } else {
-            htmlContent = parseMarkdown(msg.content);
         }
 
-        let innerHTML = `<div class="msg-content" id="msg-txt-${msg.id}">${htmlContent}</div>`;
-
-        // ADD ACTION BAR FOR BOT MESSAGES
-        if (msg.role === 'assistant') {
-            const t = translations[state.lang];
-            // Encode content safe for onclick
-            const safeContent = encodeURIComponent(msg.content); 
-            const msgId = msg.id || Date.now();
-            
-            innerHTML += `
-            <div class="msg-actions">
-                <button class="action-btn" onclick="speakText('${msgId}')" title="${t.speak}">
-                    <i class="fas fa-volume-up"></i>
-                </button>
-                <button class="action-btn" onclick="copyText(this, '${msgId}')" title="${t.copy}">
-                    <i class="fas fa-copy"></i>
-                </button>
-                <button class="action-btn" id="like-${msgId}" onclick="rateMessage('${msgId}', 'like')" title="Good response">
-                    <i class="far fa-thumbs-up"></i>
-                </button>
-                <button class="action-btn" id="dislike-${msgId}" onclick="rateMessage('${msgId}', 'dislike')" title="Bad response">
-                    <i class="far fa-thumbs-down"></i>
-                </button>
-            </div>`;
-        }
-
-        div.innerHTML = innerHTML;
-        els.container.appendChild(div);
-        scrollToBottom();
-    }
-
-    // --- ACTION FUNCTIONS ---
-    
-    // 1. Text to Speech
-    function speakText(msgId) {
-        const el = document.getElementById(`msg-txt-${msgId}`);
-        if(!el) return;
-        // Strip HTML for speaking
-        const text = el.innerText;
-        
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.cancel(); // Stop previous
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = state.lang === 'ar' ? 'ar-SA' : 'en-US';
-            utterance.rate = 1.0;
-            window.speechSynthesis.speak(utterance);
-        } else {
-            showToast("TTS not supported");
-        }
-    }
-
-    // 2. Copy (ChatGPT Style Checkmark)
-    function copyText(btn, msgId) {
-        const el = document.getElementById(`msg-txt-${msgId}`);
-        if(!el) return;
-        const text = el.innerText; // Copy text only, not HTML
-        navigator.clipboard.writeText(text);
-        
-        const originalIcon = btn.innerHTML;
-        btn.innerHTML = `<i class="fas fa-check"></i>`;
-        btn.classList.add('active');
-        setTimeout(() => {
-            btn.innerHTML = originalIcon;
-            btn.classList.remove('active');
-        }, 2000);
-    }
-
-    // 3. Rate (Like/Dislike Logic)
-    function rateMessage(msgId, type) {
-        const likeBtn = document.getElementById(`like-${msgId}`);
-        const dislikeBtn = document.getElementById(`dislike-${msgId}`);
-        const el = document.getElementById(`msg-txt-${msgId}`);
-        const content = el ? el.innerText : "";
-
-        if (type === 'like') {
-            likeBtn.classList.add('active');
-            likeBtn.innerHTML = `<i class="fas fa-thumbs-up"></i>`; // Solid icon
-            dislikeBtn.classList.remove('disliked');
-            dislikeBtn.innerHTML = `<i class="far fa-thumbs-down"></i>`;
-            
-            // "Learn" positive
-            if (!state.userPreferences.liked.includes(msgId)) {
-                state.userPreferences.liked.push(msgId);
-                // Remove from disliked if exists
-                state.lastDislikedContent = "";
+        // --- Smart Button Logic ---
+        function updateSmartButton() {
+            const hasText = els.input.value.trim().length > 0;
+            if(hasText) {
+                els.smartBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+            } else {
+                els.smartBtn.innerHTML = '<i class="fas fa-microphone-lines"></i>';
             }
-        } else {
-            dislikeBtn.classList.add('disliked');
-            dislikeBtn.innerHTML = `<i class="fas fa-thumbs-down"></i>`; // Solid icon
-            likeBtn.classList.remove('active');
-            likeBtn.innerHTML = `<i class="far fa-thumbs-up"></i>`;
+        }
+
+        function handleSmartClick() {
+            const hasText = els.input.value.trim().length > 0 || state.imageBase64;
+            if(hasText) {
+                sendMessage();
+            } else {
+                if(state.recognition) {
+                    if(state.isRecording) state.recognition.stop();
+                    else state.recognition.start();
+                } else {
+                    alert("الصوت غير مدعوم");
+                }
+            }
+        }
+
+        // --- Core Logic ---
+        async function sendMessage() {
+            const text = els.input.value.trim();
+            const img = state.imageBase64;
+            if(!text && !img) return;
+
+            triggerMeteors();
+
+            els.welcome.style.display = 'none';
+            els.chatContainer.style.display = 'flex';
+            document.getElementById('clearBtn').style.display = 'block';
+            els.input.value = ''; els.input.style.height = 'auto'; updateSmartButton();
+            state.imageBase64 = null; document.getElementById('imgPreview').style.display='none';
+
+            if(!state.currentChatId && !state.isIncognito) {
+                const chat = { id: Date.now(), title: text.substring(0, 20), messages: [] };
+                state.chats.unshift(chat);
+                state.currentChatId = chat.id;
+                renderHistory();
+            }
+
+            appendMessage('user', text, img);
+            saveMsg('user', text, img);
+
+            // Wave Loader
+            const loadId = 'load-'+Date.now();
+            const loader = document.createElement('div'); loader.id=loadId; loader.className='msg-row bot';
+            loader.innerHTML = `
+                <div class="msg-content">
+                    <div class="thinking-wave">
+                        <div class="wave-bar"></div><div class="wave-bar"></div>
+                        <div class="wave-bar"></div><div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                    </div>
+                </div>`;
+            els.chatContainer.appendChild(loader);
+            scrollToBottom();
+
+            const isImageReq = text.toLowerCase().includes('imagine') || text.includes('ارسم') || text.includes('صورة');
+
+            if(isImageReq) {
+                const enPrompt = await fetchAIResponse([
+                    {role:"system", content:"Translate to detailed English image prompt. Output ONLY prompt."},
+                    {role:"user", content:text}
+                ]);
+                document.getElementById(loadId).remove();
+                const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(enPrompt)}?nologo=true`;
+                appendMessage('bot', `<img src="${url}" style="max-width:100%; border-radius:10px;">`, null, false);
+                saveMsg('bot', `[Image] ${url}`);
+            } else {
+                const history = getHistory(15); 
+                const sysPrompt = `You are Seif AI. If asked for code, output it immediately in Markdown. Do not give long intros.`;
+                
+                const messages = [
+                    { role: "system", content: sysPrompt },
+                    ...history,
+                    { role: "user", content: img ? `[Image] ${text}` : text }
+                ];
+
+                const response = await fetchAIResponse(messages);
+                document.getElementById(loadId).remove();
+                appendMessage('bot', response, null, true);
+                saveMsg('bot', response);
+            }
+        }
+
+        async function fetchAIResponse(messages) {
+            for(let model of CONFIG.models) {
+                try {
+                    const res = await fetch('https://text.pollinations.ai/', {
+                        method: 'POST', headers: {'Content-Type':'application/json'},
+                        body: JSON.stringify({messages, model, jsonMode:false})
+                    });
+                    if(res.ok) return await res.text();
+                } catch(e){}
+            }
+            return "Error connection.";
+        }
+
+        async function regenerate(btn) {
+            const chat = state.chats.find(c => c.id === state.currentChatId);
+            if(!chat) return;
+            const row = btn.closest('.msg-row');
+            row.remove();
             
-            // "Learn" negative (This affects the NEXT message)
-            state.lastDislikedContent = content; 
-            showToast(state.lang === 'ar' ? "سنتجنب هذا الأسلوب مستقبلاً" : "We'll avoid this style.");
-        }
-        localStorage.setItem('saif_prefs_v1', JSON.stringify(state.userPreferences));
-    }
-
-    // --- Helpers ---
-    function parseMarkdown(text) {
-        // Convert code blocks
-        let formatted = text.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
-            return `<div class="code-container">
-                      <div class="code-header"><span>${(lang||'code').toUpperCase()}</span><button class="code-btn" onclick="copyCodeBlock(this)"><i class="fas fa-copy"></i></button></div>
-                      <div class="code-scroll-area"><div class="code-content">${escapeHtml(code).replace(/\n/g, '<br>')}</div></div>
-                      <div style="display:none" class="raw-code">${escapeHtml(code)}</div>
-                    </div>`;
-        });
-        // Bold, Italic, Header parsing (Simple regex)
-        formatted = formatted
-            .replace(/### (.*?)\n/g, '<h3>$1</h3>')
-            .replace(/## (.*?)\n/g, '<h2>$1</h2>')
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            .replace(/\n- (.*?)/g, '\n<li>$1</li>') // Lists
-            .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>'); // Wrap lists (basic)
+            if(!state.isIncognito) { chat.messages.pop(); saveData(); }
             
-        return formatted;
-    }
+            const history = getHistory(15);
+            const messages = [{ role: "system", content: "You are Seif AI." }, ...history];
+            
+            const loadId = 'regen-'+Date.now();
+            const loader = document.createElement('div'); loader.id=loadId; loader.className='msg-row bot';
+            loader.innerHTML = `<div class="msg-content"><div class="thinking-wave"><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div></div></div>`;
+            els.chatContainer.appendChild(loader);
+            scrollToBottom();
 
-    window.copyCodeBlock = function(btn) {
-        const raw = btn.parentElement.parentElement.querySelector('.raw-code').textContent;
-        navigator.clipboard.writeText(raw);
-        btn.innerHTML = `<i class="fas fa-check"></i>`;
-        setTimeout(() => btn.innerHTML = `<i class="fas fa-copy"></i>`, 2000);
-    }
-
-    function saveMsg(msg) {
-        if(!state.currentChatId) {
-            state.currentChatId = Date.now();
-            state.chats.unshift({ id: state.currentChatId, title: msg.content.slice(0, 20) || "New Chat", messages: [] });
+            const response = await fetchAIResponse(messages);
+            document.getElementById(loadId).remove();
+            appendMessage('bot', response, null, true);
+            saveMsg('bot', response);
         }
-        const chat = state.chats.find(c => c.id === state.currentChatId);
-        if(chat) chat.messages.push(msg);
-        localStorage.setItem('saif_chats_v12', JSON.stringify(state.chats));
-        renderHistory();
-    }
 
-    function loadChat(id) {
-        state.currentChatId = id;
-        els.container.innerHTML = '';
-        els.container.appendChild(els.empty);
-        if(id) {
-            const chat = state.chats.find(c => c.id === id);
-            if(chat) { els.empty.style.display = 'none'; chat.messages.forEach(appendMessage); }
+        // --- UI Rendering ---
+        function appendMessage(role, text, img, showActions=false) {
+            const div = document.createElement('div');
+            div.className = `msg-row ${role}`;
+            
+            let html = img ? `<img src="${img}" style="max-width:200px; border-radius:10px; margin-bottom:5px;">` : '';
+            html += (role === 'bot') ? formatMarkdown(text) : text.replace(/\n/g, '<br>');
+
+            div.innerHTML = `<div class="msg-content">${html}</div>`;
+            
+            if(showActions && role === 'bot') {
+                const actions = document.createElement('div');
+                actions.className = 'msg-actions';
+                actions.innerHTML = `
+                    <button class="action-btn" onclick="rateMsg(this, 'like')"><i class="far fa-thumbs-up"></i></button>
+                    <button class="action-btn" onclick="rateMsg(this, 'dislike')"><i class="far fa-thumbs-down"></i></button>
+                    <button class="action-btn" onclick="copyText(this)"><i class="far fa-copy"></i></button>
+                    <button class="action-btn" onclick="regenerate(this)"><i class="fas fa-sync-alt"></i></button>
+                `;
+                div.appendChild(actions);
+            }
+
+            els.chatContainer.appendChild(div);
+            scrollToBottom();
+            Prism.highlightAll();
         }
-        renderHistory();
-    }
 
-    function getHistoryContext() {
-        if (!state.currentChatId) return [];
-        const chat = state.chats.find(c => c.id === state.currentChatId);
-        // Limit context to last 6 messages to save tokens but keep context
-        return chat ? chat.messages.slice(-6).map(m => ({role: m.role, content: m.content})) : [];
-    }
+        function formatMarkdown(text) {
+            return text
+                .replace(/```(\w+)?\n([\s\S]*?)```/g, (m, l, c) => {
+                    const clean = c.replace(/"/g, '&quot;');
+                    // Using "pre" whitespace style for correct formatting
+                    return `<div class="code-wrapper"><div class="code-header"><button class="code-btn" onclick="openRunner(\`${clean}\`)"><i class="fas fa-play"></i> Run</button><button class="code-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button></div><div class="code-scroll-area"><pre><code class="language-${l||'plaintext'}">${c.replace(/</g,'&lt;')}</code></pre></div></div>`;
+                })
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>');
+        }
 
-    function renderHistory() {
-        const list = $('historyList'); list.innerHTML = '';
-        state.chats.forEach(c => {
-            const btn = document.createElement('button'); btn.className = 'menu-item';
-            btn.innerHTML = `<i class="far fa-comment-alt"></i> ${c.title}`;
-            btn.onclick = () => { loadChat(c.id); toggleSidebar(false); };
-            list.appendChild(btn);
-        });
-    }
+        // --- Ghost & Lang ---
+        function toggleGhost() {
+            state.isIncognito = !state.isIncognito;
+            document.getElementById('ghostBtn').classList.toggle('ghost-active');
+            updateLangUI(); 
+        }
 
-    function handleFiles(e) {
-        Array.from(e.target.files).forEach(f => {
-            const r = new FileReader();
-            r.onload = v => { state.attachedImages.push(v.target.result); $('imgPreviewContainer').style.display='flex'; $('imgPreviewContainer').innerHTML += `<img src="${v.target.result}" class="preview-thumb" style="width:50px;height:50px;margin:2px;">`; };
-            r.readAsDataURL(f);
-        });
-    }
+        function toggleLang() {
+            state.lang = state.lang === 'ar' ? 'en' : 'ar';
+            localStorage.setItem('seif_lang', state.lang);
+            document.documentElement.dir = state.lang === 'ar' ? 'rtl' : 'ltr';
+            updateLangUI();
+            newChat();
+        }
 
-    function cycleLang() {
-        state.lang = state.lang === 'en' ? 'ar' : 'en';
-        applyLang(state.lang);
-        toggleSidebar(false);
-    }
+        function updateLangUI() {
+            const t = texts[state.lang];
+            document.getElementById('langTxt').innerText = t.lang;
+            document.getElementById('newChatTxt').innerText = t.newChat;
+            els.input.placeholder = t.ask;
+            
+            // Update chips
+            const chips = document.querySelectorAll('.chip-txt');
+            if(chips.length > 0) {
+                chips[0].innerText = t.search;
+                chips[1].innerText = t.code;
+            }
 
-    function applyLang(l) {
-        localStorage.setItem('saif_lang_v8', l);
-        document.documentElement.lang = l; document.documentElement.dir = l === 'ar' ? 'rtl' : 'ltr';
-        const t = translations[l];
-        $('welcomeText').textContent = t.welcome; els.input.placeholder = t.placeholder;
-        $('t_newChat').textContent = t.newChat; $('t_lang').textContent = t.langName;
-        $('t_delete').textContent = t.delete; toggleModel();
-    }
+            // Ghost Brand Logic
+            if(state.isIncognito) {
+                els.brand.innerText = t.brandDark;
+                els.brand.classList.add('dark-mode');
+                document.getElementById('welcomeLogo').innerText = t.brandDark;
+            } else {
+                els.brand.innerText = t.brand;
+                els.brand.classList.remove('dark-mode');
+                document.getElementById('welcomeLogo').innerText = t.brand;
+            }
+        }
 
-    function toggleSidebar(open) {
-        els.sidebar.classList.toggle('open', open); els.overlay.classList.toggle('show', open);
-    }
+        // --- Code Runner (In-Page) ---
+        function openRunner(code) {
+            const runner = document.getElementById('codeRunner');
+            const frame = document.getElementById('runnerFrame');
+            runner.style.display = 'flex';
+            const frameDoc = frame.contentWindow.document;
+            frameDoc.open();
+            frameDoc.write(code.replace(/&quot;/g,'"').replace(/&lt;/g,'<').replace(/&gt;/g,'>'));
+            frameDoc.close();
+        }
+        function closeRunner() { document.getElementById('codeRunner').style.display = 'none'; }
 
-    function deleteChat() {
-        state.chats = state.chats.filter(c => c.id !== state.currentChatId);
-        localStorage.setItem('saif_chats_v12', JSON.stringify(state.chats));
-        loadChat(null); toggleSidebar(false);
-    }
+        // --- Utils ---
+        function rateMsg(btn, type) {
+            const btns = btn.parentElement.querySelectorAll('.action-btn');
+            btns[0].classList.remove('liked'); btns[1].classList.remove('disliked');
+            if(type === 'like') btn.classList.add('liked');
+            else btn.classList.add('disliked');
+        }
+        function copyText(btn) {
+            const txt = btn.parentElement.parentElement.innerText.replace(/Run|Copy/g,'');
+            navigator.clipboard.writeText(txt);
+        }
+        function copyCode(btn) {
+            navigator.clipboard.writeText(btn.parentElement.nextElementSibling.innerText);
+            btn.innerHTML='<i class="fas fa-check"></i>'; setTimeout(()=>btn.innerHTML='<i class="fas fa-copy"></i> Copy',1000);
+        }
+        function fillInput(t){ els.input.value=t; updateSmartButton(); sendMessage(); }
+        function toggleSidebar(o){
+            const s=document.getElementById('sidebar'), ov=document.getElementById('overlay');
+            if(o){s.classList.add('open'); ov.style.display='block';}else{s.classList.remove('open'); ov.style.display='none';}
+        }
+        function newChat() {
+            state.currentChatId=null; els.chatContainer.innerHTML=''; els.welcome.style.display='block'; els.chatContainer.style.display='none'; document.getElementById('clearBtn').style.display='none'; toggleSidebar(false);
+        }
+        
+        // --- Data ---
+        function saveMsg(role, content, img) {
+            if(state.isIncognito) return;
+            const c = state.chats.find(x=>x.id===state.currentChatId);
+            if(c) { c.messages.push({role, content, img}); localStorage.setItem('seif_chats_final', JSON.stringify(state.chats)); }
+        }
+        function getHistory(limit) {
+            if(state.isIncognito) return [];
+            const c = state.chats.find(x=>x.id===state.currentChatId);
+            return c ? c.messages.slice(-limit).map(m=>({role:m.role, content:m.content})) : [];
+        }
+        function renderHistory() {
+            const l = document.getElementById('historyList'); l.innerHTML='';
+            state.chats.forEach(c => {
+                const div = document.createElement('div'); div.className='chat-item';
+                div.innerHTML = `<span class="chat-title">${c.title}</span> <button class="chat-del-btn" onclick="event.stopPropagation(); deleteChat(${c.id})"><i class="fas fa-times"></i></button>`;
+                div.onclick = () => loadChat(c.id);
+                l.appendChild(div);
+            });
+        }
+        function loadChat(id) {
+            state.currentChatId=id; els.chatContainer.innerHTML='';
+            els.welcome.style.display='none'; els.chatContainer.style.display='flex'; document.getElementById('clearBtn').style.display='block';
+            const c = state.chats.find(x=>x.id===id);
+            c.messages.forEach(m=>appendMessage(m.role,m.content,m.img, m.role==='bot'));
+            toggleSidebar(false);
+        }
+        function deleteChat(id) {
+            state.chats = state.chats.filter(c=>c.id!==id);
+            localStorage.setItem('seif_chats_final', JSON.stringify(state.chats)); renderHistory();
+            if(state.currentChatId === id) newChat();
+        }
+        function clearCurrentChat() {
+             els.chatContainer.innerHTML='';
+             if(!state.isIncognito && state.currentChatId) {
+                 const c = state.chats.find(x=>x.id===state.currentChatId);
+                 c.messages=[]; localStorage.setItem('seif_chats_final', JSON.stringify(state.chats));
+             }
+        }
+        function handleImage(i) {
+            const f=i.files[0],r=new FileReader();
+            r.onload=e=>{state.imageBase64=e.target.result; document.getElementById('imgPreview').style.display='block'; document.getElementById('imgPreview').innerHTML=`<img src="${state.imageBase64}" style="width:100%">`; updateSmartButton(); };
+            if(f) r.readAsDataURL(f);
+        }
+        function createStars() {
+            for(let i=0; i<40; i++){
+                const s=document.createElement('div'); s.className='star';
+                s.style.top=Math.random()*100+'%'; s.style.left=Math.random()*100+'%';
+                s.style.width=Math.random()*2+'px'; s.style.height=s.style.width;
+                els.sky.appendChild(s);
+            }
+        }
+        function triggerMeteors() {
+            for(let i=0; i<5; i++) {
+                setTimeout(()=>{
+                    const m=document.createElement('div'); m.className='meteor';
+                    m.style.left=Math.random()*100+'%'; m.style.animation = `meteor-fall ${0.8+Math.random()}s linear forwards`;
+                    els.sky.appendChild(m);
+                    setTimeout(()=>m.remove(), 2000);
+                }, i*200);
+            }
+        }
+        function scrollToBottom(){ els.chatContainer.scrollTop = els.chatContainer.scrollHeight; }
 
-    function showToast(txt) {
-        const t = $('toast'); t.textContent = txt; t.classList.add('show');
-        setTimeout(() => t.classList.remove('show'), 2000);
-    }
-    
-    function scrollToBottom() { els.container.scrollTop = els.container.scrollHeight; }
-    function escapeHtml(t) { return t ? t.replace(/</g, "&lt;").replace(/>/g, "&gt;") : ''; }
-
-    init();
-</script>
+        init();
+    </script>
 </body>
 </html>
